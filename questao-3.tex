@@ -1,1 +1,130 @@
 \section{Otimização e/ou justificação do desempenho tendo em conta os parâmetros de configuração do PostgreSQL}
+
+\subsection{Configuração \textit{random\_page\_cost}}
+
+\begin{table}[!h]
+\center
+\small
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{\# custo} & \textbf{\# pedidos} & \textbf{pedidos/s} & \textbf{lat. média (s)} & \textbf{lat. perct. 99 (s)}  \\ \hline
+4.0 [Default] & 62118 & 310.58806660326184 & 1.022099449909098 & 1.130365  \\ \hline
+2.0 & 65295 & 326.47479814226466 & 1.0193406799754958 & 1.116984  \\ \hline
+1.0 & 58540 & 292.69854964502616 & 1.0225425792791254 & 1.133753  \\ \hline
+\end{tabular}
+\caption{Resultados obtidos para 3 tipos diferentes de custos}
+\end{table}
+
+as
+
+
+\subsection{Configuração \textit{shared\_buffers}}
+
+\begin{table}[!h]
+\center
+\small
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{\# tamanho (MB)} & \textbf{\# pedidos} & \textbf{pedidos/s} & \textbf{lat. média (s)} & \textbf{lat. perct. 99 (s)}  \\ \hline
+128 [Default] & 62118 & 310.5880666032618 & 1.022099449909098 & 1.130365  \\ \hline
+256 & 66220 & 331.0997665465211 & 1.0208430913168227 & 1.123978  \\ \hline
+512 & 63196 & 315.9795274241785 & 1.0210114359611369 & 1.125195  \\ \hline
+1024 & 66182 & 330.9085519342495 & 1.0217862895198089 & 1.110705  \\ \hline
+2048 & 67997 & 339.9840777438914 & 1.0197211007103255 & 1.103  \\ \hline
+3072 & 70718 & 353.5876058706962 & 1.0195804191719222 & 1.040054  \\ \hline
+4096 & 66951 & 334.7549412906784 & 1.0184993370076623 & 1.11769  \\ \hline
+5120 & 59875 & 299.3737081126374 & 1.0219795478246347 & 1.128859  \\ \hline
+\end{tabular}
+\caption{Resultados obtidos para X (X) armazéns}
+\end{table}
+
+
+
+\subsection{Configuração \textit{effective\_cache\_size}}
+
+\begin{table}[!h]
+\center
+\small
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{\# tamanho (MB)} & \textbf{\# pedidos} & \textbf{pedidos/s} & \textbf{lat. média (s)} & \textbf{lat. perct. 99 (s)}  \\ \hline
+128 [Default] & 62118 & 310.58806660326184 & 1.022099449909098 & 1.130365  \\ \hline
+512 & 67022 & 335.1094363325237 & 1.0208270027602877 & 1.112753  \\ \hline
+1024 & 66987 & 334.93426967582496 & 1.0204846512009793 & 1.109516  \\ \hline
+2048 & 66478 & 332.38835629969145 & 1.020474478669635 & 1.112206  \\ \hline
+4096 & 59880 & 299.3983502432346 & 1.0226386898630595 & 1.131897  \\ \hline
+\end{tabular}
+\caption{Resultados obtidos para X (X) armazéns}
+\end{table}
+
+
+
+\subsection{Configuração \textit{checkpoint\_segments}}
+
+\begin{table}[!h]
+\center
+\small
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{\# custo} & \textbf{\# pedidos} & \textbf{pedidos/s} & \textbf{lat. média (s)} & \textbf{lat. perct. 99 (s)}  \\ \hline
+3 [Default] & 62118 & 310.58806660326184 & 1.022099449909098 & 1.130365  \\ \hline
+9 & 66254 & 331.26961583822094 & 1.0211749849065717 & 1.113339  \\ \hline
+16 & 54564 & 272.81969749069896 & 1.0238594005571438 & 1.103626  \\ \hline
+\end{tabular}
+\caption{Resultados obtidos para X (X) armazéns}
+\end{table}
+
+
+
+\subsection{Configuração \textit{checkpoint\_completion\_target}}
+
+\begin{table}[!h]
+\center
+\small
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{\# custo} & \textbf{\# pedidos} & \textbf{pedidos/s} & \textbf{lat. média (s)} & \textbf{lat. perct. 99 (s)}  \\ \hline
+0.3 & 64619 & 323.0944392663697 & 1.021085976168000 & 1.125947  \\ \hline
+0.5 [Default] & 62118 & 310.5880666032618 & 1.022099449909098 & 1.130365  \\ \hline
+0.7 & 58028 & 290.1392958681963 & 1.022924309833184 & 1.127364  \\ \hline
+0.9 & 63947 & 319.6827007940727 & 1.021881672760254 & 1.119222  \\ \hline
+\end{tabular}
+\caption{Resultados obtidos para X (X) armazéns}
+\end{table}
+
+
+
+\subsection{Configuração \textit{autovacuum\_naptime}}
+
+\begin{table}[!h]
+\center
+\small
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{\# tempo (min)} & \textbf{\# pedidos} & \textbf{pedidos/s} & \textbf{lat. média (s)} & \textbf{lat. perct. 99 (s)}  \\ \hline
+off & 59802 & 299.0081276096099 & 1.021858928530818 & 1.136963  \\ \hline
+1 [Default] & 62118 & 310.5880666032618 & 1.022099449909098 & 1.130365  \\ \hline
+2 & 53296 & 266.4799488385146 & 1.025329163370609 & 1.138289  \\ \hline
+3 & 61163 & 305.8148124055486 & 1.022736959518009 & 1.124206  \\ \hline
+\end{tabular}
+\caption{Resultados obtidos para X (X) armazéns}
+\end{table}
+
+
+
+\subsection{Configuração \textit{work\_mem}}
+
+\begin{table}[!h]
+\center
+\small
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{\# tamanho (MB)} & \textbf{\# pedidos} & \textbf{pedidos/s} & \textbf{lat. média (s)} & \textbf{lat. perct. 99 (s)}  \\ \hline
+1 [Default] & 62118 & 310.5880666032618 & 1.022099449909098 & 1.130365  \\ \hline
+8 & 62391 & 311.9513589177765 & 1.021819045423218 & 1.130889  \\ \hline
+32 & 67109 & 335.5443187426919 & 1.019860019833405 & 1.117067  \\ \hline
+128 & 67728 & 338.6382522575026 & 1.018854204671627 & 1.118497  \\ \hline
+512 & 67698 & 338.4895027961542 & 1.020378764261869 & 1.118507  \\ \hline
+\end{tabular}
+\caption{Resultados obtidos para X (X) armazéns}
+\end{table}
