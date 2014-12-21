@@ -276,7 +276,6 @@ Desta forma, percebe-se que ter muita quantidade de memória RAM disponível nã
 
 \subsection{Configuração anterior com o \textit{checkpoint\_segments}}
 
-
 \begin{table}[!h]
 \center
 \small
@@ -287,3 +286,113 @@ Desta forma, percebe-se que ter muita quantidade de memória RAM disponível nã
 \textbf{effective\_cache\_size} & 1024MB  \\ \hline
 \end{tabular}
 \end{table}
+
+Assim para os melhores resultados obtidos na configuração individual do \textit{checkpoint\_segments}, 3 e 9 segmentos, vamos testar estes valores com a configuração definida na tabela anterior.
+
+\begin{table}[!h]
+\center
+\small
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{\# segmentos} & \textbf{\# pedidos} & \textbf{pedidos/s} & \textbf{lat. média (s)} & \textbf{lat. perct. 99 (s)}  \\ \hline
+3Segmentos & 74724 & 373.619008187245 & 1.01803675496494 & 1.088794  \\ \hline
+9Segmentos & 75410 & 377.048437684716 & 1.01657169486805 & 1.085938  \\ \hline
+\end{tabular}
+\caption{Resultados com variações do número de segmentos}
+\end{table}
+
+\begin{figure}[ht!]
+\centering
+\includegraphics[width=70mm]{img/questao_3/sb_ecs_cs_a.png}
+\includegraphics[width=70mm]{img/questao_3/sb_ecs_cs_b.png}
+\includegraphics[width=70mm]{img/questao_3/sb_ecs_cs_c.png}
+\includegraphics[width=70mm]{img/questao_3/sb_ecs_cs_d.png}
+\caption{Gráficos corresponde às variações das configurações anteriores com \textit{checkpoint\_segments}}
+\end{figure}
+
+Como esperado o aumento do número de \textit{checkpoint\_segments} permitiu aumentar o número de transações medidas e diminuir as latências (média e a 99\%).
+
+Assim para a próxima configuração será usado um \textit{checkpoint\_segments} de 9 segmentos. De notar que apesar deste aumento significativo dos resultados o tempo de recuperação da Base de Dados será mais lento.
+
+
+\newpage
+
+\subsection{Configuração anterior com o \textit{autovacuum\_naptime}}
+
+\begin{table}[!h]
+\center
+\small
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Parâmetro} & \textbf{Valor} \\ \hline
+\textbf{shared\_buffers} & 2048MB  \\ \hline
+\textbf{effective\_cache\_size} & 1024MB  \\ \hline
+\textbf{checkpoint\_segments} & 9 Segmentos \\ \hline
+\end{tabular}
+\end{table}
+
+Como na configuração individual do \textit{autovacuum\_naptime} não se obteve resultados razoáveis para 2 e 3 minutos, decidiu-se para este teste efetuar novos tempos de execução do \textit{autovacuum}. Assim serão usados 30, 60 (predefinido) e 90 segundos neste \textit{benchmark}.
+
+Com a configuração da tabela anterior mais os novos parâmetros definidos obteve-se os seguintes resultados, representados na seguinte tabela e nos próximos gráficos.
+
+\begin{table}[!h]
+\center
+\small
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{\# tempos} & \textbf{\# pedidos} & \textbf{pedidos/s} & \textbf{lat. média (s)} & \textbf{lat. perct. 99 (s)}  \\ \hline
+30Segundos & 76469 & 382.342824656676 & 1.01569113987367 & 1.088295  \\ \hline
+60Segundos & 75410 & 377.048437684716 & 1.01657169486805 & 1.085938  \\ \hline
+90Segundos & 74100 & 370.498798459429 & 1.0184869048448 & 1.089411  \\ \hline
+\end{tabular}
+\caption{Resultados obtidos para diferentes tempos de \textit{autovacuum\_naptime}}
+\end{table}
+
+\begin{figure}[ht!]
+\centering
+\includegraphics[width=70mm]{img/questao_3/sb_ecs_cs_vacuum_a.png}
+\includegraphics[width=70mm]{img/questao_3/sb_ecs_cs_vacuum_b.png}
+\includegraphics[width=70mm]{img/questao_3/sb_ecs_cs_vacuum_c.png}
+\includegraphics[width=70mm]{img/questao_3/sb_ecs_cs_vacuum_d.png}
+\caption{Corresponde às variações das configurações anteriores com \textit{autovacuum\_naptime}}
+\end{figure}
+
+A partir dos resultados acima demonstrados verifica-se que o melhor resultado aconteceu quando o tempo de \textbf{30} segundos estava definido. Como verificado, com o aumento do valor do \textit{autovacuum\_naptime} nota-se, perfeitamente, que os resultados pioraram de forma significativa.
+
+Como tal na próxima configuração o valor do \textit{autovacuum\_naptime} será de \textbf{30} segundos.
+
+\newpage
+
+\subsection{Configuração anterior com o \textit{random\_page\_cost}}
+
+\begin{table}[!h]
+\center
+\small
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Parâmetro} & \textbf{Valor} \\ \hline
+\textbf{shared\_buffers} & 2048MB  \\ \hline
+\textbf{effective\_cache\_size} & 1024MB  \\ \hline
+\textbf{checkpoint\_segments} & 9 Segmentos \\ \hline
+\textbf{autovacuum\_naptime} & 30 Segundos \\ \hline
+\end{tabular}
+\end{table}
+
+\newpage
+
+\subsection{Configuração anterior com o \textit{work\_mem}}
+
+\begin{table}[!h]
+\center
+\small
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Parâmetro} & \textbf{Valor} \\ \hline
+\textbf{shared\_buffers} & 2048MB  \\ \hline
+\textbf{effective\_cache\_size} & 1024MB  \\ \hline
+\textbf{checkpoint\_segments} & 9 Segmentos \\ \hline
+\textbf{autovacuum\_naptime} & 30 Segundos \\ \hline
+\textbf{work\_mem} & xxMB \\ \hline
+\end{tabular}
+\end{table}
+
