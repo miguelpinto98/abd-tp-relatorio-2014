@@ -228,3 +228,62 @@ Conclui-se então que se diminuir o custo dos acessos aleatórios para \textbf{2
 \newpage
 
 \subsection{Configuração do \textit{shared\_buffers} com o \textit{effective\_cache\_size}}
+
+Escolhida a melhor configurações do \textit{shared\_buffers}, o intervalo de mémoria [1024-2048]MB. No \textit{effective\_cache\_size} decidiu-se usar o melhor resultado da configuração anterior, 1024MB, e testar, também, os valores de memória conservadora e agressiva definidos anteriormente, 4096MB e 6144MB, respectivamente.
+
+Os resultados obtidos para esta configuração são os seguintes:
+
+\begin{table}[!h]
+\center
+\small
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{\# tamanho} & \textbf{\# pedidos} & \textbf{pedidos/s} & \textbf{lat. perct. média} & \textbf{lat. perct. 99}  \\ \hline
+1024MB & 69015 & 345.073418193803 & 1.02032663525321 & 1.094924  \\ \hline
+4096MB & 67377 & 336.882924828134 & 1.02042478753877 & 1.095611  \\ \hline
+6144MB & 65443 & 327.214804387718 & 1.02116393962685 & 1.092516  \\ \hline
+\end{tabular}
+\caption{Resultados obtidos para o valor de 1024MB de \textit{shared\_buffers}}
+\end{table}
+
+\begin{table}[!h]
+\center
+\small
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{\# tamanho} & \textbf{\# pedidos} & \textbf{pedidos/s} & \textbf{lat. perct. média} & \textbf{lat. perct. 99}  \\ \hline
+1024MB & 74724 & 373.619008187245 & 1.01803675496494 & 1.088794  \\ \hline
+4096MB & 66985 & 334.923957423586 & 1.01998354016571 & 1.112503  \\ \hline
+6144MB & 69708 & 348.538465057512 & 1.01924645791014 & 1.095748  \\ \hline
+\end{tabular}
+\caption{Resultados obtidos para o valor de 2048MB de \textit{shared\_buffers}}
+\end{table}
+
+\begin{figure}[ht!]
+\centering
+\includegraphics[width=70mm]{img/questao_3/sb_ecs_a.png}
+\includegraphics[width=70mm]{img/questao_3/sb_ecs_b.png}
+\includegraphics[width=70mm]{img/questao_3/sb_ecs_c.png}
+\includegraphics[width=70mm]{img/questao_3/sb_ecs_d.png}
+\caption{Gráficos corresponde às variações do \textit{shared\_buffers} para cada \textit{effective\_cache\_size}}
+\end{figure}
+
+Desta vez, consegui-se perceber que a configuração mais agressiva do \textit{effective\_cache\_size} (\textbf{6144MB}) teve melhores resultados neste \textit{benchmark} dos que nos resultados indivuais do parâmetro.
+
+Conclui-se facilmente que a melhor configuração obtida foi de \textbf{6144MB}  de \textit{shared\_buffers} e de \textbf{1024MB} de \textit{effective\_cache\_size}. Através da análise dos gráficos verifica-se que se obteve mais pedidos por segundo e o percentil das latências (média e a 99\%) são os mais baixos. Esta configuração será mantida para a próxima configuração.
+
+Desta forma, percebe-se que ter muita quantidade de memória RAM disponível não significa que se vai obter resultados com qualidade superior, antes pelo contrário, como provado neste \textit{benchmark}.
+
+\subsection{Configuração anterior com o \textit{checkpoint\_segments}}
+
+
+\begin{table}[!h]
+\center
+\small
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Parâmetro} & \textbf{Valor} \\ \hline
+\textbf{shared\_buffers} & 2048MB  \\ \hline
+\textbf{effective\_cache\_size} & 1024MB  \\ \hline
+\end{tabular}
+\end{table}
