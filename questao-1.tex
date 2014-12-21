@@ -1,6 +1,12 @@
 \section{Resultados de Desempenho na configuração híbrida \textit{TPC-C} + \textit{CH-benCHmark}}
 
+O objetivo desta primeira questão passa por analisar, recorrendo à configuração por defeito do PostgreSQL instalado no sistema, a \textit{performance} da execução híbrida dos \textit{benchmarks} \verb+TPC-C+ e \verb+CH-Benchmark+.
+
+O teste consiste na execução de \textit{queries} SQL disponibilizadas pelos \textit{benchmarks}, e no qual se faz variar o \textbf{método de isolamento}, o \textbf{número de clientes} e o \textbf{número de armazéns}.
+
 \subsection{\textit{Serializable} como Método de Isolamento}
+
+São apresentados em seguida, sobre a forma de uma tabela, os resultados obtidos na execução do \textit{benchmark} usando como Método de Isolamento o \textit{Serializable}.
 
 \begin{table}[!h]
 \center
@@ -30,7 +36,40 @@
 \caption{Resultados obtidos para quatro (4) armazéns}
 \end{table}
 
+\newpage
+
+A partir dos dados exibidos nas tabelas anteriores, foram desenhados os seguintes gráficos representativos do \textbf{débito} (número de pedidos por segundo), da \textbf{latência média} e do valor do \textbf{percentil 99 da latência}, interpretada, aqui, como latência máxima.
+
+\begin{figure}[!h]
+\centering
+\includegraphics[scale=.4]{img/questao-1/ser-deb}
+\caption{Débito obtido de acordo com o número de clientes para dois e quatro armazéns}
+\end{figure}
+
+\begin{figure}[!h]
+\centering
+\includegraphics[scale=.4]{img/questao-1/ser-lat-med}
+\caption{Latência média obtida de acordo com o número de clientes para dois e quatro armazéns}
+\end{figure}
+
+%\newpage
+
+\begin{figure}[!h]
+\centering
+\includegraphics[scale=.4]{img/questao-1/ser-lat-pct99}
+\caption{Percentil 99 da latência obtida de acordo com o número de clientes para dois e quatro armazéns}
+\end{figure}
+
+\newpage
+
+Relativamente aos valores obtidos para o débito, observa-se uma tendêcia clara de diminuição deste à medida que o número de clientes vai aumentando, quer para dois, quer para quatro armazéns.
+Verifica-se também, como seria de esperar tendo em conta o método "sequencial" de isolamento, que o débito apresenta melhores resultados para bases de dados mais com menos informação (2 armazéns).
+
+
+
 \subsection{\textit{Repeatable Read} como Método de Isolamento}
+
+São apresentados em seguida, sobre a forma de uma tabela, os resultados obtidos na execução do \textit{benchmark} usando como Método de Isolamento o \textit{Repeatable Read}.
 
 \begin{table}[!h]
 \center
@@ -60,7 +99,35 @@
 \caption{Resultados obtidos para quatro (4) armazéns}
 \end{table}
 
+\newpage
+
+A partir dos dados exibidos nas tabelas anteriores, foram desenhados os seguintes gráficos representativos do \textbf{débito} (número de pedidos por segundo), da \textbf{latência média} e do valor do \textbf{percentil 99 da latência}, interpretada, aqui, como latência máxima.
+
+\begin{figure}[!h]
+\centering
+\includegraphics[scale=.4]{img/questao-1/rep-read-deb}
+\caption{Débito obtido de acordo com o número de clientes para dois e quatro armazéns}
+\end{figure}
+
+\begin{figure}[!h]
+\centering
+\includegraphics[scale=.4]{img/questao-1/rep-read-lat-med}
+\caption{Latência média obtida de acordo com o número de clientes para dois e quatro armazéns}
+\end{figure}
+
+%\newpage
+
+\begin{figure}[!h]
+\centering
+\includegraphics[scale=.4]{img/questao-1/rep-read-lat-pct99}
+\caption{Percentil 99 da latência obtida de acordo com o número de clientes para dois e quatro armazéns}
+\end{figure}
+
+\newpage
+
 \subsection{\textit{Read Uncommitted} como Método de Isolamento}
+
+São apresentados em seguida, sobre a forma de uma tabela, os resultados obtidos na execução do \textit{benchmark} usando como Método de Isolamento o \textit{Read Uncommitted}.
 
 \begin{table}[!h]
 \center
@@ -90,7 +157,34 @@
 \caption{Resultados obtidos para quatro (4) armazéns}
 \end{table}
 
+\newpage
+
+A partir dos dados exibidos nas tabelas anteriores, foram desenhados os seguintes gráficos representativos do \textbf{débito} (número de pedidos por segundo), da \textbf{latência média} e do valor do \textbf{percentil 99 da latência}, interpretada, aqui, como latência máxima.
+
+\begin{figure}[!h]
+\centering
+\includegraphics[scale=.4]{img/questao-1/read-uncom-deb}
+\caption{Débito obtido de acordo com o número de clientes para dois e quatro armazéns}
+\end{figure}
+
+\begin{figure}[!h]
+\centering
+\includegraphics[scale=.4]{img/questao-1/read-uncom-lat-med}
+\caption{Latência média obtida de acordo com o número de clientes para dois e quatro armazéns}
+\end{figure}
+
+%\newpage
+
+\begin{figure}[!h]
+\centering
+\includegraphics[scale=.4]{img/questao-1/read-uncom-lat-pct99}
+\caption{Percentil 99 da latência obtida de acordo com o número de clientes para dois e quatro armazéns}
+\end{figure}
+
+\newpage
 \subsection{\textit{Read Committed} como Método de Isolamento}
+
+São apresentados em seguida, sobre a forma de uma tabela, os resultados obtidos na execução do \textit{benchmark} usando como Método de Isolamento o \textit{Read Comitted}.
 
 \begin{table}[!h]
 \center
@@ -120,4 +214,29 @@
 \caption{Resultados obtidos para quatro (4) armazéns}
 \end{table}
 
+\newpage
+
+A partir dos dados exibidos nas tabelas anteriores, foram desenhados os seguintes gráficos representativos do \textbf{débito} (número de pedidos por segundo), da \textbf{latência média} e do valor do \textbf{percentil 99 da latência}, interpretada, aqui, como latência máxima.
+
+\begin{figure}[!h]
+\centering
+\includegraphics[scale=.4]{img/questao-1/read-com-deb}
+\caption{Débito obtido de acordo com o número de clientes para dois e quatro armazéns}
+\end{figure}
+
+\begin{figure}[!h]
+\centering
+\includegraphics[scale=.4]{img/questao-1/read-com-lat-med}
+\caption{Latência média obtida de acordo com o número de clientes para dois e quatro armazéns}
+\end{figure}
+
+%\newpage
+
+\begin{figure}[!h]
+\centering
+\includegraphics[scale=.4]{img/questao-1/read-com-lat-pct99}
+\caption{Percentil 99 da latência obtida de acordo com o número de clientes para dois e quatro armazéns}
+\end{figure}
+
+\newpage
 \subsection{Comparação dos Métodos de Isolamento e  Conclusões Finais}
