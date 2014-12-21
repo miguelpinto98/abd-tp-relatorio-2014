@@ -186,9 +186,9 @@ Através das ferramentas que acompanham o \textit{oltpbench}, nomeadamente o \te
 \caption{Gráfico com os valores de execução para cada query com diferentes valores de memória\label{overflow}}
 \end{figure}
 
-Como verificámos no gráfico anterior o tempo de execução variou significativamente em duas \textit{queries}, na \textit{Query 10} que tinha um tempo de execução superior na configuração inicial e que passou a obter um tempo de execução inferior, proporcionalmente à memória disponível. Já na \textit{Query 15} que inicialmente tinha um tempo de execução inferior passou a tempos muitos superiores ao esperado. Isto deve-se ao facto dos algoritmos escolhidos terem efeito na quantidade de memória definida.
+Como verificámos no gráfico anterior o tempo de execução variou significativamente em duas \textit{queries}, na \textit{Query 10} que tinha um tempo de execução superior na configuração inicial e que passou a obter um tempo de execução inferior, proporcionalmente à memória disponível. Já na \textit{Query 17} que inicialmente tinha um tempo de execução inferior passou a tempos muitos superiores ao esperado. Isto deve-se ao facto dos algoritmos escolhidos terem efeito na quantidade de memória definida.
 
-Os resultados das \textit{queries 1, 6 e 15} os resultados praticamente não surtiram grande variação nos resultados.
+Os resultados das \textit{queries 1, 6 e 17} os resultados praticamente não surtiram grande variação nos resultados.
 
 Caso fosse necessário escolher a melhor configuração para este parâmetro, este ficaria entre os \textbf{8MB e 32MB}. Será necessário efetuar mais um teste, por exemplo, com \textbf{16MB} para perceber se houve alguma alteração na execução das \textit{queries} que tire partido deste valor.
 
@@ -224,3 +224,7 @@ Da análise dos resultados obtidos nas tabelas e gráficos verifica-se que se o 
 De notar, que quando o custo é de \textbf{1} os valores são muito inferiores aos desejados.
 
 Conclui-se então que se diminuir o custo dos acessos aleatórios para \textbf{2} irá beneficiar a execução do \textit{benchmark}. Isto acontece porque a escolha do algoritmo vai passar a optar em algumas partes da \textit{query} por usar acessos aleatórios em vez dos preteridos acessos sequenciais.
+
+\newpage
+
+\subsection{Configuração do \textit{shared\_buffers} com o \textit{effective\_cache\_size}}
