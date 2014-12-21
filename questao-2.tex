@@ -136,17 +136,16 @@ from
 \begin{figure}[ht!]
 \centering
 \includegraphics[width=\textwidth]{img/00_query1_pos}
-\caption{Plano de execução da \textit{query 1} depois da otimização \label{overflow}}
+\caption{Plano de execução da \textit{query 1} antes da otimização \label{overflow}}
 \end{figure}
 
 \begin{figure}[ht!]
 \centering
 \includegraphics[width=\textwidth]{img/00_query1_ant}
-\caption{Plano de execução da \textit{query 1} antes da otimização \label{overflow}}
+\caption{Plano de execução da \textit{query 1} depois da otimização \label{overflow}}
 \end{figure}
 
-% ADICIONAR AQUI UMA CONCLUSÃO SOBRE OS RESULTADOS OBTIDOS %
-ADICIONAR AQUI UMA CONCLUSÃO SOBRE OS RESULTADOS OBTIDOS
+Como é possivel visualizar nas figuras acima obtivemos uma melhoria de desempenho, onde conseguimos reduzir para menos de metade o tempo total de execução da \textit{query}. Como podemos confirmar a otimização foi efetuada corretamente isto porque os resultados obtidos são exatamente os mesmos. Como é possivel verificar, dividindo a \textit{query} em duas \textit{queries} ou efetuado uma \textit{sub-query} conseguimos reduzir para metade o tempo de execução, isto porque primeiro os dados são selecionados de acordo com as condições pedidas e só depois na \textit{query} principal é que são mostrados os dados que interessam.
 
 \newpage
 
@@ -186,8 +185,8 @@ where
 \caption{Plano de execução da \textit{query 17} depois da otimização \label{overflow}}
 \end{figure}
 
-% ADICIONAR AQUI UMA CONCLUSÃO SOBRE OS RESULTADOS OBTIDOS %
-ADICIONAR AQUI UMA CONCLUSÃO SOBRE OS RESULTADOS OBTIDOS
+
+No melhoramento desta \textit{query} é possivel visualizar que através duma \textit{materialized view}, conseguimos reduzir drasticamente o tempo de execução da \textit{query}. Neste caso, como o pretendido é consultar os dados e não altera-lós a \textit{materialized view} encaixa como um possivel método de visualização, isto porque apesar de ocupar mais espaço na nossa base de dados, ficamos com os dados que pretendemos ver pré-compilados tendo assim uma melhoria elevada de perfomance aquando duma consulta da \textit{materialized view}. A \textit{materialized view} permite que os cálculos sejam feitos previamente e assim ao contrário das \textit{views} normais que consultam os dados em tempo de execução perdendo assim desempenho. 
 
 \newpage
 
