@@ -117,6 +117,10 @@ Normalmente para valores elevados de \textit{checkpoint\_segments} é recomendad
 
 \subsection{Configuração \textit{autovacuum\_naptime}}
 
+Este processo corresponde ao tempo mínimo entre a execução do \textit{autovacuum}, isto é, só ocorre um novo depois de ter passado o tempo de execução do anterior.
+
+Para perceber o que acontece nesta configuração foram feitos vários \textit{benchmarks} para os seguintes tempos de \textit{autovacuum\_naptime}: desligado, 1 minuto, 2 minutos e 3 minutos entre cada execução. Obteve-se, assim, os resultados da próxima tabela.
+
 \begin{table}[!h]
 \center
 \small
@@ -128,18 +132,29 @@ Normalmente para valores elevados de \textit{checkpoint\_segments} é recomendad
 2 & 53296 & 266.4799488385146 & 1.025329163370609 & 1.138289  \\ \hline
 3 & 61163 & 305.8148124055486 & 1.022736959518009 & 1.124206  \\ \hline
 \end{tabular}
-\caption{Resultados obtidos para X (X) armazéns}
+\caption{Resultados obtidos para a configuração do \textit{autovacuum\_naptime}}
 \end{table}
 
 \begin{figure}[ht!]
 \centering
-\includegraphics[width=60mm]{img/05_vacuum_a.png}
-\includegraphics[width=80mm]{img/05_vacuum_b.png}
-\caption{Gráfico correspondente aos valores da tabela anterior\label{overflow}}
+\includegraphics[width=70mm]{img/05_vacuum_a.png}
+\includegraphics[width=70mm]{img/05_vacuum_b.png}
+\caption{Gráficos correspondente aos valores da tabela \label{overflow}}
 \end{figure}
 
+Dos resultados apresentados, verifica-se que, os que apresentam melhores tempos de execução foram o de \textbf{1} minuto e \textbf{3} minutos. Este último só ocorreu no máximo uma vez, assim como o teste a \textbf{2} minutos, o que leva a querer que não teve muita influência nos valores da latência. Com o parâmetro desligado não se obteve os resultados mais corretos, isto porque não ocorreu nenhuma execução do \textit{\textbf{autovacuum}} o que contribui para estatísticas erradas e consequentemente para escolha errada dos algoritmos usados pelo \textit{PostgreSQL}.
+
+Ao contrário do esperado ter um \textit{\textbf{autovacuum}} mais regular fez que os resultados obtidos fossem mais razoáveis com os que se pode comparar. De facto, ao haver com mais frequência o \textit{\textbf{autovacuum}} faz com que em cada operação haja menos dados para limpar.
+
+Assim, decidiu-se escolhar para esta configuração o melhor resultado o de \textbf{1} minuto, por defeito na configuração do \textit{postgresql.conf}.
+
+\newpage
 
 \subsection{Configuração \textit{work\_mem}}
+
+O \textit{work\_mem} especifica a quantidade de memória RAM que pode ser usada para operações internas (\textit{Sort e Hash Tables}) antes de serem gravadas para ficheiros temporários em disco. O valor predefinido na configuração do \textit{PostgreSQL} é de 1MB.
+
+Como existem algumas \textit{queries} complexas no teste do \textit{CHBenchmark} decidimos testar como vão variar o tempo de execução das \textit{queries} e perceber se é possível obter mais transações com a menor latência possível. Para isto foram feitos testes para 1MB, 8MB, 32MB, 128MB e 512MB.
 
 \begin{table}[!h]
 \center
@@ -156,11 +171,33 @@ Normalmente para valores elevados de \textit{checkpoint\_segments} é recomendad
 \caption{Resultados obtidos para X (X) armazéns}
 \end{table}
 
+\begin{figure}[ht!]
+\centering
+\includegraphics[width=70mm]{img/06_wm_a.png}
+\includegraphics[width=70mm]{img/06_wm_b.png}
+\caption{Gráficos correspondente aos valores da tabela \label{overflow}}
+\end{figure}
+
+Através das ferramentas que acompanham o \textit{oltpbench}, nomeadamente o \textit{plot\_latencies.py} obtivemos o seguinte gráfico, para os valores médios de execução:
+
+\begin{figure}[ht!]
+\centering
+\includegraphics[width=\textwidth]{img/06_wm_c.png}
+\caption{Gráfico com os valores de execução para cada query com diferentes valores de memória\label{overflow}}
+\end{figure}
+
+Como verificámos no gráfico anterior o tempo de execução variou significativamente em duas \textit{queries}, na \textit{Query 10} que tinha um tempo de execução superior na configuração inicial e que passou a obter um tempo de execução inferior, proporcionalmente à memória disponível. Já na \textit{Query 15} que inicialmente tinha um tempo de execução inferior passou a tempos muitos superiores ao esperado. Isto deve-se ao facto dos algoritmos escolhidos terem efeito na quantidade de memória definida.
+
+Os resultados das \textit{queries 1, 6 e 15} os resultados praticamente não surtiram grande variação nos resultados.
+
+Caso fosse necessário escolher a melhor configuração para este parâmetro, este ficaria entre os \textbf{8MB e 32MB}. Será necessário efetuar mais um teste, por exemplo, com \textbf{16MB} para perceber se houve alguma alteração na execução das \textit{queries} que tire partido deste valor.
+
+Finalmente, se analisar-mos o valor das latências junto com as transações medidas, percebe-se que \textbf{32MB} será provavelmente uma boa configuração para este parâmetro.
+
 
 \subsection{Configuração do \textit{random\_page\_cost}}
 
 Como o dispositivo utilizado para correr os testes possui um \textit{Solid State Drive (SSD)} decidou-se alterar na configuração do \textit{PostgreSQL} o custo dos acessos aleatórios. Neste teste vamos mostrar os resultados obtidos para a configuração inicial que tem definido um custo igual a 4, e alterações de custo entre 1 e 2.
-
 
 \begin{table}[!h]
 \center
@@ -168,11 +205,22 @@ Como o dispositivo utilizado para correr os testes possui um \textit{Solid State
 \begin{tabular}{|c|c|c|c|c|}
 \hline
 \textbf{\# custo} & \textbf{\# pedidos} & \textbf{pedidos/s} & \textbf{lat. média (s)} & \textbf{lat. perct. 99 (s)}  \\ \hline
-4.0 [Default] & 62118 & 310.58806660326184 & 1.022099449909098 & 1.130365  \\ \hline
+4.0 (Default) & 62118 & 310.58806660326184 & 1.022099449909098 & 1.130365  \\ \hline
 2.0 & 65295 & 326.47479814226466 & 1.0193406799754958 & 1.116984  \\ \hline
 1.0 & 58540 & 292.69854964502616 & 1.0225425792791254 & 1.133753  \\ \hline
 \end{tabular}
 \caption{Resultados obtidos para 3 tipos diferentes de custos}
 \end{table}
 
+\begin{figure}[ht!]
+\centering
+\includegraphics[width=70mm]{img/07_rpc_a.png}
+\includegraphics[width=70mm]{img/07_rpc_b.png}
+\caption{Gráficos correspondente aos valores da tabela \label{overflow}}
+\end{figure}
 
+Da análise dos resultados obtidos nas tabelas e gráficos verifica-se que se o custo dos acessos aleatórios for de \textbf{2} encontram-se melhores valores de latência média e a 99\%. Também o número de pedidos medios por tempo é superior ao definido por defeito na configuração inicial.
+
+De notar, que quando o custo é de \textbf{1} os valores são muito inferiores aos desejados.
+
+Conclui-se então que se diminuir o custo dos acessos aleatórios para \textbf{2} irá beneficiar a execução do \textit{benchmark}. Isto acontece porque a escolha do algoritmo vai passar a optar em algumas partes da \textit{query} por usar acessos aleatórios em vez dos preteridos acessos sequenciais.
