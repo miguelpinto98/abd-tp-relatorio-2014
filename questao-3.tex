@@ -1,6 +1,166 @@
 \section{Otimização e/ou justificação do desempenho tendo em conta os parâmetros de configuração do PostgreSQL}
 
-\subsection{Configuração \textit{random\_page\_cost}}
+\subsection{Configuração do \textit{shared\_buffers}}
+
+O parâmetro de configuração \textit{shared\_buffers} determina a quantidade de memória RAM dedicada ao \textit{PostgreSQL} que vai ser usada para armazenar dados enquanto executa queries.
+
+Inicialmente, podia-se prever que quanto maior fosse a quantidade de memória dedicada melhor seriam os resultados de desempenho esperados. É uma conclusão precipitada, pois o \textit{PostgreSQL} utiliza esta memória para efetuar operações e não para \textit{cache} de disco, por exemplo.
+
+Um valor razoável para para o \textit{shared\_buffers} é de 25\% da memória RAM do sistema (2GB) mas decidiu-se extender os testes até 50\% da memória do sistema (4GB). Apesar de valores acima de 40\% serem, provavelmente, menos eficazes, pois o \textit{PostgreSQL} conta também com a \textit{cache} do sistema operativo.
+
+Para o \textit{benchamark} foram usados valores de memória RAM entre os 128MB, valor por defeito na configuração, e os 4096MB. Os resultados segue na próxima tabela.
+
+\begin{table}[!h]
+\center
+\small
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{\# tamanho (MB)} & \textbf{\# pedidos} & \textbf{pedidos/s} & \textbf{lat. média (s)} & \textbf{lat. perct. 99 (s)}  \\ \hline
+128 (Default) & 62118 & 310.5880666032618 & 1.0220994499090980 & 1.130365  \\ \hline
+256 & 60989 & 304.9445727406344 & 1.0224922605223894 & 1.133323  \\ \hline
+512 & 63196 & 315.9795274241785 & 1.0210114359611369 & 1.125195  \\ \hline
+1024 & 66182 & 330.9085519342495 & 1.0217862895198089 & 1.110705  \\ \hline
+2048 & 70374 & 351.8684527622802 & 1.0194107100775853 & 1.098318  \\ \hline
+3072 & 64198 & 320.9880720942809 & 1.0198997528427676 & 1.129971  \\ \hline
+4096 & 60497 & 302.4838197277969 & 1.0220000570937402 & 1.134960  \\ \hline
+\end{tabular}
+\caption{Resultados obtidos para X (X) armazéns}
+\end{table}
+
+\begin{figure}[ht!]
+\centering
+\includegraphics[width=\textwidth]{img/01_sb.png}
+\caption{Gráfico correspondente aos valores da tabela anterior\label{overflow}}
+\end{figure}
+
+Ao analisar-mos os resultados obtidos, verifica-se que o percentil da latência média e a 99\% estão constantemente a diminuir à medida que a quantidade de memória disponível aumenta. Isto acontece devido à ausência de escrita dos resultados para o disco, o que provoca a redução de quantidade de \textit{I/O} para a obtenção de dados. Conclui-se ainda que o melhor resultado aconteceu quando a memória disponível era de \textbf{2048MB}, tendo ocorrido mais pedidos por segundo e as latências (média e 99\%) apresentarem os resultados mais inferiores. A segunda melhor configuração para esta métrica aconteceu quando a memória disponível era de \textbf{1024MB}.
+
+Assim sendo, para esta configuração o valor escolhido será o de \textbf{2048MB} por apresentar os melhores resultados tanto a nível de pedidos como de latência.
+
+\newpage
+
+\subsection{Configuração \textit{effective\_cache\_size}}
+
+O \textit{effective\_cache\_size} é definido como uma estimativa da quantidade de memória disponível para a \textit{cache} do disco. Este parâmetro é utilizado \textit{PostgreSQL Query Planner} para perceber que planos pode utilizar tendo em conta o espaço disponível em memória.
+
+A documentação do \textit{PostgreSQL} afirma que definir 50\% da memória total do dispositivo será uma configuração conservadora e que 75\% uma configuração agressiva, mas aceitável.
+
+Então para a configuração deste \textit{benchmark} utilizou-se os seguintes parâmetros, 128MB, 512MB, 1024MB, 2048MB, 4096MB e 6144MB.
+
+\begin{table}[!h]
+\center
+\small
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{\# tamanho (MB)} & \textbf{\# pedidos} & \textbf{pedidos/s} & \textbf{lat. média (s)} & \textbf{lat. perct. 99 (s)}  \\ \hline
+128 (Default) & 62118 & 310.58806660326184 & 1.022099449909098 & 1.130365  \\ \hline
+512 & 67022 & 335.1094363325237 & 1.0208270027602877 & 1.112753  \\ \hline
+1024 & 66987 & 334.93426967582496 & 1.0204846512009793 & 1.109516  \\ \hline
+2048 & 66478 & 332.38835629969145 & 1.020474478669635 & 1.112206  \\ \hline
+4096 & 59880 & 299.3983502432346 & 1.0226386898630595 & 1.131897  \\ \hline
+6144 & 63982 & 319.9084020175434 & 1.0210112850958082 & 1.130562  \\ \hline
+\end{tabular}
+\caption{Resultados obtidos para X (X) armazéns}
+\end{table}
+
+\begin{figure}[ht!]
+\centering
+\includegraphics[width=70mm]{img/02_ecs_b.png}
+\includegraphics[width=70mm]{img/02_ecs_a.png}
+\caption{Gráfico correspondente aos valores da tabela anterior\label{overflow}}
+\end{figure}
+
+
+Ao analisar-se os valores obtidos identificasse que na configuração mais conservadora (\textbf{4096MB}) e agressiva (\textbf{6144MB}) não se obteve os melhores resultados. O número de pedidos medidos foi muito inferior a outros valores assim como a latência a 99\%, a latência média praticamente se encontra entre a média dos resultados.
+
+Podemos, então, definir o intervalo de \textbf{[512-2048]MB} como o que se obteve melhor resultados para esta configuração. O valor \textbf{1024MB} obteve melhor resultados no percentil da lantência a 99\%. Já o valor \textbf{512MB} obteve mais pedidos e pedidos por segundo e um ligeiro aumento nas latências do teste, que influência negativamente o resultado. Com o parâmetro a \textbf{2048MB} mantém-se na média dos resultados anteriores, possuíndo o resultado com menor latência média.
+
+Dentro do intervalo definido anteriormente, se fosse necessário escolher um resultado como melhor valor, escolhíamos a configuração com \textbf{1024MB} de \textit{effective\_cache\_size} onde se obteve a menor latência a 99\% e valor similares na latência média para o praticamente o mesmo número de pedidos.
+
+\newpage
+
+\subsection{Configuração \textit{checkpoint\_segments}}
+
+O \textit{PostgreSQL} escreve novas transações na base de dados em ficheiros chamados de segmentos \textit{Write-Ahead Logging (WAL)} que tem um tamanho de 16MB. Nas configurações do \textit{postgresql.conf} o valor atualmente por defeito é de 3 \textit{checkpoint\_segments}.
+
+Aumentar o número de \textit{checkpoint\_segments} melhora o desempenho do benchmark pois faz com que os \textit{checkpoints} ocorram com menor frequência, obrigando assim a base de dados a uma recuperação mais lenta após uma falha. No entanto o \textit{I/O} ao disco diminui.
+
+Para este \textit{benchmarking} foram utilizados os seguintes valores de \textit{checkpoint\_segments}, 3, 9 e 16.
+
+\begin{table}[!h]
+\center
+\small
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{\# segmentos} & \textbf{\# pedidos} & \textbf{pedidos/s} & \textbf{lat. média (s)} & \textbf{lat. perct. 99 (s)}  \\ \hline
+3 (Default) & 62118 & 310.58806660326184 & 1.022099449909098 & 1.130365  \\ \hline
+9 & 66254 & 331.26961583822094 & 1.0211749849065717 & 1.113339  \\ \hline
+16 & 54564 & 272.81969749069896 & 1.0238594005571438 & 1.103626  \\ \hline
+\end{tabular}
+\caption{Resultados obtidos para o \textit{checkpoint\_segments}.}
+\end{table}
+
+\begin{figure}[ht!]
+\centering
+\includegraphics[width=70mm]{img/03_cs_a.png}
+\includegraphics[width=70mm]{img/03_cs_b.png}
+\caption{Gráfico correspondente aos valores da tabela anterior\label{overflow}}
+\end{figure}
+
+Como foi de esperar, ao aumentar o valor de \textit{checkpoint\_segments} o valores de transações aumentaram, mas somente quando o valor foi de 9 segmentos. Quando o teste foi efetuado com \textbf{16} segmentos o número de transações dimininuiram abruptamente mas na latência a 99\% obteve-se o melhor resultado, ainda que na latência média manteve-se perto dos resultados anteriores. Estes resultados podem-se dever à recuperação mais lenta da base de dados.
+
+Nesta situação a configuração mais indicada seria de \textbf{9} segmentos. O \textit{benchmark} obteve o melhore resultado ao nível das transações e de latência média inferior nestas transações.
+
+Normalmente para valores elevados de \textit{checkpoint\_segments} é recomendado aumentar o \textit{checkpoint\_timeout} por causa dos intervalos de controlo.
+
+\newpage
+
+\subsection{Configuração \textit{autovacuum\_naptime}}
+
+\begin{table}[!h]
+\center
+\small
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{\# tempo (min)} & \textbf{\# pedidos} & \textbf{pedidos/s} & \textbf{lat. média (s)} & \textbf{lat. perct. 99 (s)}  \\ \hline
+0 (off) & 59802 & 299.0081276096099 & 1.021858928530818 & 1.136963  \\ \hline
+1 (Default) & 62118 & 310.5880666032618 & 1.022099449909098 & 1.130365  \\ \hline
+2 & 53296 & 266.4799488385146 & 1.025329163370609 & 1.138289  \\ \hline
+3 & 61163 & 305.8148124055486 & 1.022736959518009 & 1.124206  \\ \hline
+\end{tabular}
+\caption{Resultados obtidos para X (X) armazéns}
+\end{table}
+
+\begin{figure}[ht!]
+\centering
+\includegraphics[width=60mm]{img/05_vacuum_a.png}
+\includegraphics[width=80mm]{img/05_vacuum_b.png}
+\caption{Gráfico correspondente aos valores da tabela anterior\label{overflow}}
+\end{figure}
+
+
+\subsection{Configuração \textit{work\_mem}}
+
+\begin{table}[!h]
+\center
+\small
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{\# tamanho (MB)} & \textbf{\# pedidos} & \textbf{pedidos/s} & \textbf{lat. média (s)} & \textbf{lat. perct. 99 (s)}  \\ \hline
+1 (Default) & 62118 & 310.5880666032618 & 1.022099449909098 & 1.130365  \\ \hline
+8 & 62391 & 311.9513589177765 & 1.021819045423218 & 1.130889  \\ \hline
+32 & 67109 & 335.5443187426919 & 1.019860019833405 & 1.117067  \\ \hline
+128 & 67728 & 338.6382522575026 & 1.018854204671627 & 1.118497  \\ \hline
+512 & 67698 & 338.4895027961542 & 1.020378764261869 & 1.118507  \\ \hline
+\end{tabular}
+\caption{Resultados obtidos para X (X) armazéns}
+\end{table}
+
+
+\subsection{Configuração do \textit{random\_page\_cost}}
+
+Como o dispositivo utilizado para correr os testes possui um \textit{Solid State Drive (SSD)} decidou-se alterar na configuração do \textit{PostgreSQL} o custo dos acessos aleatórios. Neste teste vamos mostrar os resultados obtidos para a configuração inicial que tem definido um custo igual a 4, e alterações de custo entre 1 e 2.
+
 
 \begin{table}[!h]
 \center
@@ -15,116 +175,4 @@
 \caption{Resultados obtidos para 3 tipos diferentes de custos}
 \end{table}
 
-as
 
-
-\subsection{Configuração \textit{shared\_buffers}}
-
-\begin{table}[!h]
-\center
-\small
-\begin{tabular}{|c|c|c|c|c|}
-\hline
-\textbf{\# tamanho (MB)} & \textbf{\# pedidos} & \textbf{pedidos/s} & \textbf{lat. média (s)} & \textbf{lat. perct. 99 (s)}  \\ \hline
-128 [Default] & 62118 & 310.5880666032618 & 1.022099449909098 & 1.130365  \\ \hline
-256 & 66220 & 331.0997665465211 & 1.0208430913168227 & 1.123978  \\ \hline
-512 & 63196 & 315.9795274241785 & 1.0210114359611369 & 1.125195  \\ \hline
-1024 & 66182 & 330.9085519342495 & 1.0217862895198089 & 1.110705  \\ \hline
-2048 & 67997 & 339.9840777438914 & 1.0197211007103255 & 1.103  \\ \hline
-3072 & 70718 & 353.5876058706962 & 1.0195804191719222 & 1.040054  \\ \hline
-4096 & 66951 & 334.7549412906784 & 1.0184993370076623 & 1.11769  \\ \hline
-5120 & 59875 & 299.3737081126374 & 1.0219795478246347 & 1.128859  \\ \hline
-\end{tabular}
-\caption{Resultados obtidos para X (X) armazéns}
-\end{table}
-
-
-
-\subsection{Configuração \textit{effective\_cache\_size}}
-
-\begin{table}[!h]
-\center
-\small
-\begin{tabular}{|c|c|c|c|c|}
-\hline
-\textbf{\# tamanho (MB)} & \textbf{\# pedidos} & \textbf{pedidos/s} & \textbf{lat. média (s)} & \textbf{lat. perct. 99 (s)}  \\ \hline
-128 [Default] & 62118 & 310.58806660326184 & 1.022099449909098 & 1.130365  \\ \hline
-512 & 67022 & 335.1094363325237 & 1.0208270027602877 & 1.112753  \\ \hline
-1024 & 66987 & 334.93426967582496 & 1.0204846512009793 & 1.109516  \\ \hline
-2048 & 66478 & 332.38835629969145 & 1.020474478669635 & 1.112206  \\ \hline
-4096 & 59880 & 299.3983502432346 & 1.0226386898630595 & 1.131897  \\ \hline
-\end{tabular}
-\caption{Resultados obtidos para X (X) armazéns}
-\end{table}
-
-
-
-\subsection{Configuração \textit{checkpoint\_segments}}
-
-\begin{table}[!h]
-\center
-\small
-\begin{tabular}{|c|c|c|c|c|}
-\hline
-\textbf{\# custo} & \textbf{\# pedidos} & \textbf{pedidos/s} & \textbf{lat. média (s)} & \textbf{lat. perct. 99 (s)}  \\ \hline
-3 [Default] & 62118 & 310.58806660326184 & 1.022099449909098 & 1.130365  \\ \hline
-9 & 66254 & 331.26961583822094 & 1.0211749849065717 & 1.113339  \\ \hline
-16 & 54564 & 272.81969749069896 & 1.0238594005571438 & 1.103626  \\ \hline
-\end{tabular}
-\caption{Resultados obtidos para X (X) armazéns}
-\end{table}
-
-
-
-\subsection{Configuração \textit{checkpoint\_completion\_target}}
-
-\begin{table}[!h]
-\center
-\small
-\begin{tabular}{|c|c|c|c|c|}
-\hline
-\textbf{\# custo} & \textbf{\# pedidos} & \textbf{pedidos/s} & \textbf{lat. média (s)} & \textbf{lat. perct. 99 (s)}  \\ \hline
-0.3 & 64619 & 323.0944392663697 & 1.021085976168000 & 1.125947  \\ \hline
-0.5 [Default] & 62118 & 310.5880666032618 & 1.022099449909098 & 1.130365  \\ \hline
-0.7 & 58028 & 290.1392958681963 & 1.022924309833184 & 1.127364  \\ \hline
-0.9 & 63947 & 319.6827007940727 & 1.021881672760254 & 1.119222  \\ \hline
-\end{tabular}
-\caption{Resultados obtidos para X (X) armazéns}
-\end{table}
-
-
-
-\subsection{Configuração \textit{autovacuum\_naptime}}
-
-\begin{table}[!h]
-\center
-\small
-\begin{tabular}{|c|c|c|c|c|}
-\hline
-\textbf{\# tempo (min)} & \textbf{\# pedidos} & \textbf{pedidos/s} & \textbf{lat. média (s)} & \textbf{lat. perct. 99 (s)}  \\ \hline
-off & 59802 & 299.0081276096099 & 1.021858928530818 & 1.136963  \\ \hline
-1 [Default] & 62118 & 310.5880666032618 & 1.022099449909098 & 1.130365  \\ \hline
-2 & 53296 & 266.4799488385146 & 1.025329163370609 & 1.138289  \\ \hline
-3 & 61163 & 305.8148124055486 & 1.022736959518009 & 1.124206  \\ \hline
-\end{tabular}
-\caption{Resultados obtidos para X (X) armazéns}
-\end{table}
-
-
-
-\subsection{Configuração \textit{work\_mem}}
-
-\begin{table}[!h]
-\center
-\small
-\begin{tabular}{|c|c|c|c|c|}
-\hline
-\textbf{\# tamanho (MB)} & \textbf{\# pedidos} & \textbf{pedidos/s} & \textbf{lat. média (s)} & \textbf{lat. perct. 99 (s)}  \\ \hline
-1 [Default] & 62118 & 310.5880666032618 & 1.022099449909098 & 1.130365  \\ \hline
-8 & 62391 & 311.9513589177765 & 1.021819045423218 & 1.130889  \\ \hline
-32 & 67109 & 335.5443187426919 & 1.019860019833405 & 1.117067  \\ \hline
-128 & 67728 & 338.6382522575026 & 1.018854204671627 & 1.118497  \\ \hline
-512 & 67698 & 338.4895027961542 & 1.020378764261869 & 1.118507  \\ \hline
-\end{tabular}
-\caption{Resultados obtidos para X (X) armazéns}
-\end{table}
