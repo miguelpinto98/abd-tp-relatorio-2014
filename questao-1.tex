@@ -267,7 +267,7 @@ No entanto, para 16 clientes verifica-se um crescimento quase exponencial para d
 
 \newpage
 
-\subsection{Comparação dos Métodos de Isolamento}
+\subsection{Comparação dos Métodos de Isolamento e Conclusões Finais}
 
 \begin{figure}[!h]
 \centering
@@ -308,3 +308,60 @@ No entanto, para 16 clientes verifica-se um crescimento quase exponencial para d
 \includegraphics[scale=.5]{img/questao-1/diff-lat-pct99-4-arm}
 \caption{Comparação do valor do percentil 99 da latência obtido para cada método de isolamento em função do número de clientes para uma configuração com quatro (4) armazéns}
 \end{figure}
+
+Dos tipos de isolamento anteriores percebemos que o \textit{Repeatable Read} é que o que acaba por o ter o isolamento mais equilibrado, pois as falhas que podem acontecer durante a execução dos testes são muitos menos prováveis. Os isolamentos \textit{Read Committed} e \textit{Read Uncommitted} têm maior probabilidade de falhas e maior número de falhas possíveis. Já o \textit{Serializable} é um tipo de isolamento muito rígido em que só permite executar uma \textit{query} depois de terminar a anterior. Isto impede que haja falhas na base de dados mas faz com que não seja um isolamento praticavél.
+
+Depois de definido o melhor tipo de isolamento, \textit{Repeatable Read}, é essencial perceber quantos armazéns e número de clientes se deve usar como configuração base deste \textit{benchmark}. Assim, depois de analisarmos os gráficos anteriores percebe-se que para um número de \textbf{4} clientes e \textbf{4} se obteve o melhor resultado, tanto a nível de débitos como de latências.
+
+De notar que tivemos que alterar na configuração do \textit{XML} o parâmetro do débito pois este estava a causa impacto no \textit{benchmarking} o que não era pretendido. Foi então colocado um valor de 10000 de débito de forma que o número de transações por segundo não tivesse qualquer tipo de limitação.
+
+\begin{table}[!h]
+\center
+\small
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Parâmetro} & \textbf{Valor} \\ \hline
+\textbf{isolation} & \textit{Repeatable Read} \\ \hline
+\textbf{scalefactor} & 4  \\ \hline
+\textbf{terminals} & 4  \\ \hline
+\textbf{time} & 200  \\ \hline
+\textbf{rate} & 10000  \\ \hline
+\end{tabular}
+\caption{Configuração inicial do \textit{Benchmark}}
+\end{table}
+
+Na configuração anterior referimos que o \textit{time} é de 200 segundos mas nos testes executados inicialmente o \textit{time} foi de 60 segundos. Esta alteração ocorreu porque percebemos que 60 segundos era insuficiente para avaliar os resultados da configuração, futuramente, do \textit{postgresql.conf}. Como tal, executamos mais um teste para a melhor configuração, definida anteriormente mas com vários clientes, e obteve-se os seguintes resultados:
+
+\begin{table}[!h]
+\center
+\small
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{\# clientes} & \textbf{\# pedidos} & \textbf{pedidos/s} & \textbf{lat. média (s)} & \textbf{lat. perct. 99 (s)}  \\ \hline
+2 & 50985 & 254.924654589839 & 1.01284884652349 & 1.040724  \\ \hline
+4 & 62118 & 310.588066603262 & 1.02196725140861 & 1.124054  \\ \hline
+8 & 46867 & 234.333927170071 & 1.05701739208825 & 1.360126  \\ \hline
+16 & 45012 & 225.058994290125 & 1.12131417364258 & 1.622081  \\ \hline
+\end{tabular}
+\caption{Resultados para 200 segundos com vários clientes}
+\end{table}
+
+\begin{figure}[ht!]
+\centering
+\includegraphics[width=70mm]{img/final1/a}
+\includegraphics[width=70mm]{img/final1/b}
+\includegraphics[width=70mm]{img/final1/c}
+\includegraphics[width=70mm]{img/final1/d}
+\caption{Gráficos resultantes da tabela anterior}
+\end{figure}
+
+\begin{figure}[ht!]
+\centering
+\includegraphics[width=70mm]{img/final1/res_2_0.png}
+\includegraphics[width=70mm]{img/final1/res_2_1.png}
+\caption{Valores de tempo de execução por \textit{query} e débito de transações}
+\end{figure}
+
+Percebe-se que apesar do aumento significativo da latência o valor de \textbf{4} Clientes é o melhor para ser usado nos próximos testes.
+
+Estes resultados serão a partir deste momento usados como referência para os próximos \textit{benchmarks} efectuados.
