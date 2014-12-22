@@ -36,8 +36,6 @@ São apresentados em seguida, sobre a forma de uma tabela, os resultados obtidos
 \caption{Resultados obtidos para quatro (4) armazéns}
 \end{table}
 
-\newpage
-
 A partir dos dados exibidos nas tabelas anteriores, foram desenhados os seguintes gráficos representativos do \textbf{débito} (número de pedidos por segundo), da \textbf{latência média} e do valor do \textbf{percentil 99 da latência}, interpretada, aqui, como latência máxima.
 
 \begin{figure}[!h]
@@ -45,6 +43,8 @@ A partir dos dados exibidos nas tabelas anteriores, foram desenhados os seguinte
 \includegraphics[scale=.4]{img/questao-1/ser-deb}
 \caption{Débito obtido de acordo com o número de clientes para dois e quatro armazéns}
 \end{figure}
+
+\newpage
 
 \begin{figure}[!h]
 \centering
@@ -60,12 +60,15 @@ A partir dos dados exibidos nas tabelas anteriores, foram desenhados os seguinte
 \caption{Percentil 99 da latência obtida de acordo com o número de clientes para dois e quatro armazéns}
 \end{figure}
 
-\newpage
-
 Relativamente aos valores obtidos para o débito, observa-se uma tendêcia clara de diminuição deste à medida que o número de clientes vai aumentando, quer para dois, quer para quatro armazéns.
 Verifica-se também, como seria de esperar tendo em conta o método "sequencial" de isolamento, que o débito apresenta melhores resultados para bases de dados mais com menos informação (2 armazéns).
 
+Relativamente à análise aos valores da latência, e como seria de esperar, quanto maior é a base de dados, maior será a latência média e máxima.
+Para a configuração com quatro armazéns, é notório um crescimento exponencial de 4 para 8 clientes.
+Já para dois armazéns, o crescimento desta é proporcional.
+Curiosamente, assiste-se, para 16 clientes, a uma igualdade de valores entre as duas configurações.
 
+\newpage
 
 \subsection{\textit{Repeatable Read} como Método de Isolamento}
 
@@ -99,8 +102,6 @@ São apresentados em seguida, sobre a forma de uma tabela, os resultados obtidos
 \caption{Resultados obtidos para quatro (4) armazéns}
 \end{table}
 
-\newpage
-
 A partir dos dados exibidos nas tabelas anteriores, foram desenhados os seguintes gráficos representativos do \textbf{débito} (número de pedidos por segundo), da \textbf{latência média} e do valor do \textbf{percentil 99 da latência}, interpretada, aqui, como latência máxima.
 
 \begin{figure}[!h]
@@ -108,6 +109,8 @@ A partir dos dados exibidos nas tabelas anteriores, foram desenhados os seguinte
 \includegraphics[scale=.4]{img/questao-1/rep-read-deb}
 \caption{Débito obtido de acordo com o número de clientes para dois e quatro armazéns}
 \end{figure}
+
+\newpage
 
 \begin{figure}[!h]
 \centering
@@ -122,6 +125,14 @@ A partir dos dados exibidos nas tabelas anteriores, foram desenhados os seguinte
 \includegraphics[scale=.4]{img/questao-1/rep-read-lat-pct99}
 \caption{Percentil 99 da latência obtida de acordo com o número de clientes para dois e quatro armazéns}
 \end{figure}
+
+No que ao débito se refere, a configuração com a base de dados maior (4 armazéns) apresenta melhores valores para 4 (o valor máximo, com 340 pedidos/s) e 8 clientes, sofrendo uma queda abrupta quando o número de clientes passa para 16.
+Com dois armazéns, a diferença de 8 para 16 clientes é pouco significativa.
+
+Já quanto à latência, assiste-se a um crescimento proporcional desta para dois armazéns.
+Com quatro armazéns, assim como se passou com o débito, assiste-se a uma degradação abrupta com 16 clientes.
+No entanto, até 8 clientes, uma configuração com quatro armazéns apresenta melhores resultados.
+Esta tendência é também seguida no valor do percentil 99 da latência já que, como se pode ver, este valor dispara para a configuração com quatro armazéns e 16 clientes.
 
 \newpage
 
@@ -157,8 +168,6 @@ São apresentados em seguida, sobre a forma de uma tabela, os resultados obtidos
 \caption{Resultados obtidos para quatro (4) armazéns}
 \end{table}
 
-\newpage
-
 A partir dos dados exibidos nas tabelas anteriores, foram desenhados os seguintes gráficos representativos do \textbf{débito} (número de pedidos por segundo), da \textbf{latência média} e do valor do \textbf{percentil 99 da latência}, interpretada, aqui, como latência máxima.
 
 \begin{figure}[!h]
@@ -166,6 +175,8 @@ A partir dos dados exibidos nas tabelas anteriores, foram desenhados os seguinte
 \includegraphics[scale=.4]{img/questao-1/read-uncom-deb}
 \caption{Débito obtido de acordo com o número de clientes para dois e quatro armazéns}
 \end{figure}
+
+\newpage
 
 \begin{figure}[!h]
 \centering
@@ -181,7 +192,15 @@ A partir dos dados exibidos nas tabelas anteriores, foram desenhados os seguinte
 \caption{Percentil 99 da latência obtida de acordo com o número de clientes para dois e quatro armazéns}
 \end{figure}
 
+Os resultados obtidos para o débito da aplicação usando como método de isolamento o \verb+Read Uncommited+ sugere que uma configuração com quatro armazéns é bastante penalizadora em relação a dois.
+O melhor valor ocorre, para dois armazéns, com oito clientes.
+Curiosamente, com 16 clientes, o débito obtido é melhor para 4 armazéns.
+Neste caso, seria interessante aumentar o número de clientes (por exemplo, 24) para se estudar se, de facto, se trata de uma tendência.
+
+No que à latência média e ao valor do percentil 99 diz respeito, os resultados para ambas as configurações são bastantes semelhantes, o que indícia, de facto, que para este método de isolamento o tamanho da base de dados não é um fator determinante na latência obtida.
+
 \newpage
+
 \subsection{\textit{Read Committed} como Método de Isolamento}
 
 São apresentados em seguida, sobre a forma de uma tabela, os resultados obtidos na execução do \textit{benchmark} usando como Método de Isolamento o \textit{Read Comitted}.
@@ -214,8 +233,6 @@ São apresentados em seguida, sobre a forma de uma tabela, os resultados obtidos
 \caption{Resultados obtidos para quatro (4) armazéns}
 \end{table}
 
-\newpage
-
 A partir dos dados exibidos nas tabelas anteriores, foram desenhados os seguintes gráficos representativos do \textbf{débito} (número de pedidos por segundo), da \textbf{latência média} e do valor do \textbf{percentil 99 da latência}, interpretada, aqui, como latência máxima.
 
 \begin{figure}[!h]
@@ -223,6 +240,8 @@ A partir dos dados exibidos nas tabelas anteriores, foram desenhados os seguinte
 \includegraphics[scale=.4]{img/questao-1/read-com-deb}
 \caption{Débito obtido de acordo com o número de clientes para dois e quatro armazéns}
 \end{figure}
+
+\newpage
 
 \begin{figure}[!h]
 \centering
@@ -238,5 +257,14 @@ A partir dos dados exibidos nas tabelas anteriores, foram desenhados os seguinte
 \caption{Percentil 99 da latência obtida de acordo com o número de clientes para dois e quatro armazéns}
 \end{figure}
 
+Como se pode verificar através do gráfico do débito da aplicação, os valores máximos são obtidos para uma configuração de dois armazéns, para 4 e 8 clientes, assistindo-se, depois, a uma perda substancial para 16 clientes.
+Já para uma base de dados maior (4 armazéns), os valores obtidos parecem manter-se constantes à medida que o número de clientes vai aumentando (cerca de 310 pedidos/s), mas inferior ao máximo registado com dois armazéns (360 pedidos/s).
+No entanto, para 16 clientes, o valor obtido é bastante melhor quando comparado com uma configuração com dois armazéns.
+
+No que se refere à latência, duas tendências são facilmente observáveis, tanto para a latência média como para o valor do percentil 99 desta.
+A primeira é que, em ambas as configurações, até 8 clientes, os resultados obtidos em ambas são bastante semelhantes.
+No entanto, para 16 clientes verifica-se um crescimento quase exponencial para dois armazéns, ao passo que para quatro, existe um crescimento, mas proporcional.
+
 \newpage
+
 \subsection{Comparação dos Métodos de Isolamento e  Conclusões Finais}
