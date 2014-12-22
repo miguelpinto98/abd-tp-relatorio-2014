@@ -1,6 +1,8 @@
 \section{Otimização e/ou justificação do desempenho tendo em conta as \textit{queries} analisadas}
 
-Neste ponto deu-se a análise de queries para perceber quais as que tem um tempo de execução maior e desta forma analisar e perceber o porquê de isso acontecer. O gráfico seguinte mostra a execução das queries primeiramente do TPC-C e seguidamente do CHBenchmark, onde o query number de 1 a 5 representa as queries do TPC-C e as restantes representam as queries do CHBenchmark. De notar que, por exemplo, o query number 6 corresponde à query 1 do CHBenchmark, a query 10 corresponde à query 5 do CHBenchmark e assim sucessivamente.
+Neste ponto deu-se a análise de queries para perceber quais as que tem um tempo de execução superior e desta forma analisar e perceber o porquê de isso acontecer.
+
+O gráfico seguinte mostra a execução das \textit{queries}, primeiramente do \textit{TPC-C} e seguidamente do \textit{CHBenchmark}, onde o \textit{query number} de 1 a 5 representa as queries do TPC-C e as restantes representam as queries do CHBenchmark. De notar que, por exemplo, o \textit{query number} 6 corresponde à \textit{query} 1 do \textit{CHBenchmark}, a query 10 corresponde à \textit{query} 5, e assim sucessivamente.
 
 \begin{figure}[ht!]
 \centering
@@ -11,7 +13,7 @@ Neste ponto deu-se a análise de queries para perceber quais as que tem um tempo
 Para uma identificação mais fácil das \textit{queries} do \textit{CHBenchmark} que foram executadas no gráfico acima, segue-se o que cada uma faz:
 \\
 
-\textbf{\textit{Query 1}} - Esta consulta informa a quantidade total e quantidade de todas as \textit{OrderLines} enviados dadas por um período de tempo específico. Além disso, informa sobre a quantidade média e quantidade mais a contagem total de todos esses \textit{OrderLines} ordenados pelo número \textit{OrderLine} individual.
+\textbf{\textit{Query 1}} - Esta consulta informa a quantidade total e quantidade de todas as \textit{OrderLines} enviados, dadas por um período de tempo específico. Além disso, informa sobre a quantidade média mais a contagem total de todos essas \textit{OrderLines} ordenados pelo número \textit{OrderLine} individual.
 
 \begin{verbatim}
 select
@@ -52,7 +54,7 @@ order by revenue desc;
 \end{verbatim}
 
 
-\textbf{\textit{Query 6}} – Esta consulta lista o montante total das receitas arquivadas do OrderLines que foram entregues num período específico e uma certa quantidade.
+\textbf{\textit{Query 6}} – Esta consulta lista o montante total das receitas arquivadas do OrderLines, que foram entregues num período específico e numa certa quantidade.
 
 \begin{verbatim}
 select
@@ -65,7 +67,7 @@ where
   and ol_quantity between 1 and 100000
 \end{verbatim}
 
-\textbf{\textit{Query 10}} – Esta consulta serve para analisar as despesas de todos os clientes listagem o seu país, alguns detalhes deles e a quantidade de dinheiro que eles têm usado para tomar as suas ordens desde uma data específica. A lista inteira é ordenada pela quantidade de encomendas dos clientes.
+\textbf{\textit{Query 10}} – Esta consulta serve para analisar as despesas de todos os clientes numa listagem do seu país, alguns detalhes deles e a quantidade de dinheiro que eles têm usado para comprar as suas ordens desde uma data específica. A lista inteira é ordenada pela quantidade de encomendas dos clientes.
 
 \begin{verbatim}
 select
@@ -89,7 +91,7 @@ order by
 \end{verbatim}
 
 
-\textbf{\textit{Query 17}} – Esta consulta determina a perda anual de receita, se as encomendas apenas com uma quantidade de mais do que a quantidade média de todas as ordens no sistema fosse tomadas e enviadas aos clientes.
+\textbf{\textit{Query 17}} – Esta consulta determina a perda anual de receita, se as encomendas apenas com uma quantidade de mais do que a quantidade média de todas as ordens no sistema fossem compradas e enviadas aos clientes.
 
 \begin{verbatim}
 select
@@ -107,7 +109,7 @@ where
 \end{verbatim}
 
 
-Posto isto chegou-se à conclusão que é necessário avaliar as 5 \textit{queries} do \textit{CHBenchmark} que foram executadas e que tiveram um tempo de execução muito elevado, ou seja, verificar o que se passa nas mesmas e tentar melhor o seu desempenho. Um dos pontos que foi possível concluir é que estas \textit{queries} apresentadas têm um tempo de execução elevado porque possuem várias condições para as mesmas serem realizadas com sucesso. Após análise às mesmas foi possível concluir que em apenas duas conseguimos melhorar o desempenho alterando o código \textit{SQL} da mesma sem afetar a base de dados.\\
+Posto isto chegou-se à conclusão que é necessário avaliar as 5 \textit{queries} do \textit{CHBenchmark} que foram executadas, e perceber as que tiveram um tempo de execução muito elevado, ou seja, verificar o que se passa nas mesmas e tentar melhor o seu desempenho. Um dos pontos que foi possível concluir é que estas \textit{queries} apresentadas têm um tempo de execução elevado porque possuem várias condições para as mesmas serem realizadas com sucesso. Após análise às mesmas foi possível concluir que em apenas duas conseguimos melhorar o desempenho alterando o código \textit{SQL} da mesma sem afetar a base de dados e os seus resultados.\\
 
 \newpage
 
@@ -151,7 +153,7 @@ Como é possivel visualizar nas figuras acima obtivemos uma melhoria de desempen
 
 \subsection{Desempenho \textit{Query 17}}
 
-Na \textit{query 17} foi possível fazer algumas melhorias, isto porque a mesma fica mais eficiente se houver uma \textit{materialized view} para calcular a média para cada índice. Segue-se abaixo o código \textit{SQL} que permite obter os mesmos resultados mas com mais eficiência e os respetivos planos de execução para comparação:
+Na \textit{query 17} foi possível, também, fazer algumas melhorias, isto porque a mesma fica mais eficiente se houver uma \textit{materialized view} para calcular a média para cada índice. Segue-se abaixo o código \textit{SQL} que permite obter os mesmos resultados mas com mais eficiência e os respetivos planos de execução para comparação:
 
 \begin{verbatim}
 CREATE MATERIALIZED VIEW AvgByID AS
@@ -179,20 +181,20 @@ where
 \caption{Plano de execução da \textit{query 17} antes da otimização \label{overflow}}
 \end{figure}
 
-\begin{figure}[h!]
+\begin{figure}[ht!]
 \centering
 \includegraphics[width=\textwidth]{img/00_query17_pos}
 \caption{Plano de execução da \textit{query 17} depois da otimização \label{overflow}}
 \end{figure}
 
 
-No melhoramento desta \textit{query} é possivel visualizar que através duma \textit{materialized view}, conseguimos reduzir drasticamente o tempo de execução da \textit{query}. Neste caso, como o pretendido é consultar os dados e não altera-lós a \textit{materialized view} encaixa como um possivel método de visualização, isto porque apesar de ocupar mais espaço na nossa base de dados, ficamos com os dados que pretendemos ver pré-compilados tendo assim uma melhoria elevada de perfomance aquando duma consulta da \textit{materialized view}. A \textit{materialized view} permite que os cálculos sejam feitos previamente e assim ao contrário das \textit{views} normais que consultam os dados em tempo de execução perdendo assim desempenho. 
+No melhoramento desta \textit{query} é possivel visualizar que através duma \textit{materialized view}, conseguimos reduzir drasticamente o tempo de execução da \textit{query}. Neste caso, como o pretendido é consultar os dados e não altera-lós a \textit{materialized view} encaixa como um possivel método de visualização, isto porque apesar de ocupar mais espaço na nossa base de dados, ficamos com os dados que pretendemos ver pré-compilados tendo assim uma melhoria elevada de perfomance aquando duma consulta da \textit{materialized view}. A \textit{materialized view} permite que os cálculos sejam feitos previamente, e atualizados por o método \textit{refresh} e assim ao contrário das \textit{views} normais que consultam os dados em tempo de execução perdendo assim desempenho.
 
 \newpage
 
 \subsection{Desempenho das restantes \textit{queries}}
 
-Analisando a \textit{query 5} pode-se ver que o tempo de execução da mesma é elevado porque a condição \textit{where} é bastante extensa, tendo várias condições que são feitas uma a uma, diminuindo assim o desempenho da mesma.\\
+Analisando a \textit{query 5} pode ver-se que o tempo de execução da mesma é elevado porque a condição \textit{where} é bastante extensa, tendo várias condições que são feitas uma a uma, diminuindo assim o desempenho da mesma.\\
 
 Analisando a \textit{query 6} é possível notar que a mesma tem uma longa duração de execução devido às condições impostas na condição \textit{where}. A gama de valores é bastante elevada tendo de percorrer cerca de 20 anos de registos bem como a quantidade presente que pode variar entre valores muito elevados (1 a 100000).\\
 

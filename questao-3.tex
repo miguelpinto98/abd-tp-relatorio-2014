@@ -2,15 +2,15 @@
 
 O objetivo desta questão passa por alterar certos parâmetros, recorrendo à configuração do \textit{PostgreSQL} para tentar aumentar a \textit{performance} da execução híbrida dos \textit{benchmarks} \verb+TPC-C+ e \verb+CH-Benchmark+.
 
-\subsection{Configuração do \textit{shared\_buffers}}
+\subsection{Configuração \textit{shared\_buffers}}
 
-O parâmetro de configuração \textit{shared\_buffers} determina a quantidade de memória RAM dedicada ao \textit{PostgreSQL} que vai ser usada para armazenar dados enquanto executa queries.
+O parâmetro de configuração \textit{shared\_buffers} determina a quantidade de memória RAM dedicada ao \textit{PostgreSQL} que vai ser usada para armazenar dados enquanto executa as queries.
 
-Inicialmente, podia-se prever que quanto maior fosse a quantidade de memória dedicada melhor seriam os resultados de desempenho esperados. É uma conclusão precipitada, pois o \textit{PostgreSQL} utiliza esta memória para efetuar operações e não para \textit{cache} de disco, por exemplo.
+Inicialmente, podia-se prever que quanto maior fosse a quantidade de memória dedicada melhor seriam os resultados de desempenho. É uma conclusão precipitada, pois o \textit{PostgreSQL} utiliza esta memória para efetuar operações e não para \textit{cache} de disco, por exemplo.
 
 Um valor razoável para para o \textit{shared\_buffers} é de 25\% da memória RAM do sistema (2GB) mas decidiu-se extender os testes até 50\% da memória do sistema (4GB). Apesar de valores acima de 40\% serem, provavelmente, menos eficazes, pois o \textit{PostgreSQL} conta também com a \textit{cache} do sistema operativo.
 
-Para o \textit{benchamark} foram usados valores de memória RAM entre os 128MB, valor por defeito na configuração, e os 4096MB. Os resultados segue na próxima tabela.
+Para o \textit{benchamark} foram usados valores de memória RAM entre os 128MB, valor por defeito na configuração, e os 4096MB. Os resultados seguem-se na próxima tabela.
 
 \begin{table}[!h]
 \center
@@ -26,7 +26,7 @@ Para o \textit{benchamark} foram usados valores de memória RAM entre os 128MB, 
 3072 & 64198 & 320.9880720942809 & 1.0198997528427676 & 1.129971  \\ \hline
 4096 & 60497 & 302.4838197277969 & 1.0220000570937402 & 1.134960  \\ \hline
 \end{tabular}
-\caption{Resultados obtidos para X (X) armazéns}
+\caption{Resultados obtidos no \textit{shared\_buffers} para diferentes tamanhos de memória}
 \end{table}
 
 \begin{figure}[ht!]
@@ -35,11 +35,9 @@ Para o \textit{benchamark} foram usados valores de memória RAM entre os 128MB, 
 \caption{Gráfico correspondente aos valores da tabela anterior\label{overflow}}
 \end{figure}
 
-Ao analisar-mos os resultados obtidos, verifica-se que o percentil da latência média e a 99\% estão constantemente a diminuir à medida que a quantidade de memória disponível aumenta. Isto acontece devido à ausência de escrita dos resultados para o disco, o que provoca a redução de quantidade de \textit{I/O} para a obtenção de dados. Conclui-se ainda que o melhor resultado aconteceu quando a memória disponível era de \textbf{2048MB}, tendo ocorrido mais pedidos por segundo e as latências (média e 99\%) apresentarem os resultados mais inferiores. A segunda melhor configuração para esta métrica aconteceu quando a memória disponível era de \textbf{1024MB}.
+Ao analisarmos os resultados obtidos, verifica-se que o percentil da latência média e a 99\% estão constantemente a diminuir à medida que a quantidade de memória disponível aumenta. Isto acontece devido à ausência de escrita dos resultados para o disco, o que provoca a redução na quantidade de \textit{I/O} para a obtenção de dados. Conclui-se ainda que o melhor resultado aconteceu quando a memória disponível era de \textbf{2048MB}, tendo ocorrido mais pedidos por segundo e as latências (média e 99\%) apresentarem os resultados mais inferiores. A segunda melhor configuração para esta métrica aconteceu quando a memória disponível era de \textbf{1024MB}.
 
 Assim sendo, para esta configuração o valor escolhido será o de \textbf{2048MB} por apresentar os melhores resultados tanto a nível de pedidos como de latência.
-
-\newpage
 
 \subsection{Configuração \textit{effective\_cache\_size}}
 
@@ -62,7 +60,7 @@ Então para a configuração deste \textit{benchmark} utilizou-se os seguintes p
 4096 & 59880 & 299.3983502432346 & 1.0226386898630595 & 1.131897  \\ \hline
 6144 & 63982 & 319.9084020175434 & 1.0210112850958082 & 1.130562  \\ \hline
 \end{tabular}
-\caption{Resultados obtidos para X (X) armazéns}
+\caption{Resultados obtidos no \textit{effective\_cache\_size} para diferentes tamanhos de memória}
 \end{table}
 
 \begin{figure}[ht!]
@@ -73,11 +71,11 @@ Então para a configuração deste \textit{benchmark} utilizou-se os seguintes p
 \end{figure}
 
 
-Ao analisar-se os valores obtidos identificasse que na configuração mais conservadora (\textbf{4096MB}) e agressiva (\textbf{6144MB}) não se obteve os melhores resultados. O número de pedidos medidos foi muito inferior a outros valores assim como a latência a 99\%, a latência média praticamente se encontra entre a média dos resultados.
+Ao analisar-se os valores obtidos identificasse que na configuração mais conservadora (\textbf{4096MB}) e agressiva (\textbf{6144MB}) não se obteve os melhores resultados. Pensámos que se deve ao facto de a base de dados do benchmark não ter um tamanho, cerca de 650MB, que faça a diferença neste aspecto. O número de pedidos medidos foi muito inferior aos outros valores assim como o percentil da latência a 99\%, a latência média, praticamente, encontra-se entre a média dos resultados.
 
-Podemos, então, definir o intervalo de \textbf{[512-2048]MB} como o que se obteve melhor resultados para esta configuração. O valor \textbf{1024MB} obteve melhor resultados no percentil da lantência a 99\%. Já o valor \textbf{512MB} obteve mais pedidos e pedidos por segundo e um ligeiro aumento nas latências do teste, que influência negativamente o resultado. Com o parâmetro a \textbf{2048MB} mantém-se na média dos resultados anteriores, possuíndo o resultado com menor latência média.
+Podemos, então, definir o intervalo de \textbf{[512-2048]}MB como o que se obteve melhor resultados para esta configuração. O valor \textbf{1024MB} obteve melhor resultados no percentil da lantência a 99\%. Já o valor \textbf{512MB} obteve mais pedidos por segundo e um ligeiro aumento nas latências no teste, este último influência negativamente o resultado. Com o parâmetro a \textbf{2048MB} consegue-se manter na média dos resultados anteriores, possuíndo o resultado com menor latência média.
 
-Dentro do intervalo definido anteriormente, se fosse necessário escolher um resultado como melhor valor, escolhíamos a configuração com \textbf{1024MB} de \textit{effective\_cache\_size} onde se obteve a menor latência a 99\% e valor similares na latência média para o praticamente o mesmo número de pedidos.
+Dentro do intervalo definido anteriormente se fosse necessário escolher um resultado como melhor valor, escolhíamos a configuração com \textbf{1024MB} de \textit{effective\_cache\_size} onde se obteve a menor latência a 99\% e valor similares na latência média para o mesmo número de pedidos.
 
 \newpage
 
@@ -85,9 +83,9 @@ Dentro do intervalo definido anteriormente, se fosse necessário escolher um res
 
 O \textit{PostgreSQL} escreve novas transações na base de dados em ficheiros chamados de segmentos \textit{Write-Ahead Logging (WAL)} que tem um tamanho de 16MB. Nas configurações do \textit{postgresql.conf} o valor atualmente por defeito é de 3 \textit{checkpoint\_segments}.
 
-Aumentar o número de \textit{checkpoint\_segments} melhora o desempenho do benchmark pois faz com que os \textit{checkpoints} ocorram com menor frequência, obrigando assim a base de dados a uma recuperação mais lenta após uma falha. No entanto o \textit{I/O} ao disco diminui.
+Aumentar o número de \textit{checkpoint\_segments} melhora o desempenho do benchmark pois faz com que os \textit{checkpoints} ocorram com menor frequência, obrigando assim a base de dados a uma recuperação mais lenta após uma falha. No entanto o \textit{I/O} ao disco diminui provocando melhorias, eventuais, no teste.
 
-Para este \textit{benchmarking} foram utilizados os seguintes valores de \textit{checkpoint\_segments}, 3, 9 e 16.
+Para este \textit{benchmarking} foram utilizados os seguintes valores de \textit{checkpoint\_segments}: 3, 9 e 16.
 
 \begin{table}[!h]
 \center
@@ -99,7 +97,7 @@ Para este \textit{benchmarking} foram utilizados os seguintes valores de \textit
 9 & 66254 & 331.26961583822094 & 1.0211749849065717 & 1.113339  \\ \hline
 16 & 54564 & 272.81969749069896 & 1.0238594005571438 & 1.103626  \\ \hline
 \end{tabular}
-\caption{Resultados obtidos para o \textit{checkpoint\_segments}.}
+\caption{Resultados obtidos para o \textit{checkpoint\_segments}}
 \end{table}
 
 \begin{figure}[ht!]
@@ -109,9 +107,9 @@ Para este \textit{benchmarking} foram utilizados os seguintes valores de \textit
 \caption{Gráfico correspondente aos valores da tabela anterior\label{overflow}}
 \end{figure}
 
-Como foi de esperar, ao aumentar o valor de \textit{checkpoint\_segments} o valores de transações aumentaram, mas somente quando o valor foi de 9 segmentos. Quando o teste foi efetuado com \textbf{16} segmentos o número de transações dimininuiram abruptamente mas na latência a 99\% obteve-se o melhor resultado, ainda que na latência média manteve-se perto dos resultados anteriores. Estes resultados podem-se dever à recuperação mais lenta da base de dados.
+Como foi de esperar, ao aumentar o valor de \textit{checkpoint\_segments} o valores de transações aumentaram, mas somente quando o valor foi de \textbf{9} segmentos. Quando o teste foi efetuado com \textbf{16} segmentos o número de transações diminuiu abruptamente, mas na latência a 99\% obteve-se o melhor resultado, ainda que a latência média se tenha mantido. Estes resultados devem-se à recuperação mais lenta da base de dados.
 
-Nesta situação a configuração mais indicada seria de \textbf{9} segmentos. O \textit{benchmark} obteve o melhore resultado ao nível das transações e de latência média inferior nestas transações.
+Nesta situação, a configuração mais indicada seria de \textbf{9} segmentos. O \textit{benchmark} obteve o melhor resultado ao nível das transações e de latência média, que foi inferior.
 
 Normalmente para valores elevados de \textit{checkpoint\_segments} é recomendado aumentar o \textit{checkpoint\_timeout} por causa dos intervalos de controlo.
 
@@ -119,9 +117,9 @@ Normalmente para valores elevados de \textit{checkpoint\_segments} é recomendad
 
 \subsection{Configuração \textit{autovacuum\_naptime}}
 
-Este processo corresponde ao tempo mínimo entre a execução do \textit{autovacuum}, isto é, só ocorre um novo depois de ter passado o tempo de execução do anterior.
+Este processo corresponde ao tempo mínimo entre a execução do \textit{autovacuum} (limpar resíduos deixados na base de dados), isto é, só ocorre um novo depois de ter passado o tempo de execução do anterior.
 
-Para perceber o que acontece nesta configuração foram feitos vários \textit{benchmarks} para os seguintes tempos de \textit{autovacuum\_naptime}: desligado, 1 minuto, 2 minutos e 3 minutos entre cada execução. Obteve-se, assim, os resultados da próxima tabela.
+Para se perceber o que acontece nesta configuração foram feitos vários \textit{benchmarks} para os seguintes tempos de \textit{autovacuum\_naptime}: desligado, 1 minuto, 2 minutos e 3 minutos entre cada execução. Obteve-se, assim, os resultados da próxima tabela.
 
 \begin{table}[!h]
 \center
@@ -144,11 +142,11 @@ Para perceber o que acontece nesta configuração foram feitos vários \textit{b
 \caption{Gráficos correspondente aos valores da tabela \label{overflow}}
 \end{figure}
 
-Dos resultados apresentados, verifica-se que, os que apresentam melhores tempos de execução foram o de \textbf{1} minuto e \textbf{3} minutos. Este último só ocorreu no máximo uma vez, assim como o teste a \textbf{2} minutos, o que leva a querer que não teve muita influência nos valores da latência. Com o parâmetro desligado não se obteve os resultados mais corretos, isto porque não ocorreu nenhuma execução do \textit{\textbf{autovacuum}} o que contribui para estatísticas erradas e consequentemente para escolha errada dos algoritmos usados pelo \textit{PostgreSQL}.
+Dos resultados apresentados verifica-se que aqueles que apresentam melhores tempos de execução foram o de \textbf{1} minuto e \textbf{3} minutos. Este último só ocorreu no máximo uma vez, assim como o teste a \textbf{2} minutos, o que leva a querer que não teve muita influência nos valores da latência. Com o parâmetro desligado não se obteve os resultados mais corretos, isto porque não ocorreu nenhuma execução do \textit{\textbf{autovacuum}} o que contribui para estatísticas erradas e consequentemente para escolha errada dos algoritmos usados pelo \textit{PostgreSQL}.
 
-Ao contrário do esperado ter um \textit{\textbf{autovacuum}} mais regular fez que os resultados obtidos fossem mais razoáveis com os que se pode comparar. De facto, ao haver com mais frequência o \textit{\textbf{autovacuum}} faz com que em cada operação haja menos dados para limpar.
+Ao contrário do esperado ter um \textit{\textbf{autovacuum}} mais regular faz com que os resultados obtidos fossem mais razoáveis. De facto, ao haver com mais frequência o \textit{\textbf{autovacuum}} faz com que em cada operação haja menos dados para limpar.
 
-Assim, decidiu-se escolhar para esta configuração o melhor resultado o de \textbf{1} minuto, por defeito na configuração do \textit{postgresql.conf}.
+Assim, decidiu-se escolher para o \textit{autovacuum\_naptime} como melhor resultado o tempo de \textbf{1} minuto, por defeito na configuração do \textit{postgresql.conf}.
 
 \newpage
 
@@ -156,7 +154,7 @@ Assim, decidiu-se escolhar para esta configuração o melhor resultado o de \tex
 
 O \textit{work\_mem} especifica a quantidade de memória RAM que pode ser usada para operações internas (\textit{Sort e Hash Tables}) antes de serem gravadas para ficheiros temporários em disco. O valor predefinido na configuração do \textit{PostgreSQL} é de 1MB.
 
-Como existem algumas \textit{queries} complexas no teste do \textit{CHBenchmark} decidimos testar como vão variar o tempo de execução das \textit{queries} e perceber se é possível obter mais transações com a menor latência possível. Para isto foram feitos testes para 1MB, 8MB, 32MB, 128MB e 512MB.
+Como existem algumas \textit{queries} complexas no teste do \textit{CHBenchmark} decidimos testar como vão variar o tempo de execução das mesmas e perceber se é possível obter mais transações com a menor latência possível. Para isto foram feitos testes para 1MB, 8MB, 32MB, 128MB e 512MB.
 
 \begin{table}[!h]
 \center
@@ -170,7 +168,7 @@ Como existem algumas \textit{queries} complexas no teste do \textit{CHBenchmark}
 128 & 67728 & 338.6382522575026 & 1.018854204671627 & 1.118497  \\ \hline
 512 & 67698 & 338.4895027961542 & 1.020378764261869 & 1.118507  \\ \hline
 \end{tabular}
-\caption{Resultados obtidos para X (X) armazéns}
+\caption{Resultados obtidos no \textit{work\_mem} para diferentes tamanhos de memória}
 \end{table}
 
 \begin{figure}[ht!]
@@ -188,13 +186,13 @@ Através das ferramentas que acompanham o \textit{oltpbench}, nomeadamente o \te
 \caption{Gráfico com os valores de execução para cada query com diferentes valores de memória\label{overflow}}
 \end{figure}
 
-Como verificámos no gráfico anterior o tempo de execução variou significativamente em duas \textit{queries}, na \textit{Query 10} que tinha um tempo de execução superior na configuração inicial e que passou a obter um tempo de execução inferior, proporcionalmente à memória disponível. Já na \textit{Query 17} que inicialmente tinha um tempo de execução inferior passou a tempos muitos superiores ao esperado. Isto deve-se ao facto dos algoritmos escolhidos terem efeito na quantidade de memória definida.
+Como verificámos no gráfico anterior o tempo de execução variou significativamente em duas \textit{queries}, na \textit{Query 10} que tinha um tempo de execução superior na configuração inicial e que passou a obter um tempo de execução inferior, proporcionalmente à memória disponível. Já na \textit{Query 5} que inicialmente tinha um tempo de execução inferior passou a tempos muitos superiores ao esperado. Isto deve-se ao facto dos algoritmos escolhidos terem efeito na quantidade de memória definida.
 
-Os resultados das \textit{queries 1, 6 e 17} os resultados praticamente não surtiram grande variação nos resultados.
+Nos resultados das \textit{queries 1, 6 e 17} não se surtiu grandes variações.
 
-Caso fosse necessário escolher a melhor configuração para este parâmetro, este ficaria entre os \textbf{8MB e 32MB}. Será necessário efetuar mais um teste, por exemplo, com \textbf{16MB} para perceber se houve alguma alteração na execução das \textit{queries} que tire partido deste valor.
+Caso fosse necessário escolher a melhor configuração para este parâmetro, este situava-se entre os \textbf{8MB e 32MB}. Será necessário efetuar mais um teste, por exemplo, com \textbf{16MB} para perceber se houve alguma alteração na execução das \textit{queries} que tire partido da memória disponível.
 
-Finalmente, se analisar-mos o valor das latências junto com as transações medidas, percebe-se que \textbf{32MB} será provavelmente uma boa configuração para este parâmetro.
+Finalmente, se analisarmos o valor das latências junto com as transações medidas, percebe-se que \textbf{32MB} será provavelmente uma boa configuração para este parâmetro.
 
 
 \subsection{Configuração do \textit{random\_page\_cost}}
@@ -221,17 +219,17 @@ Como o dispositivo utilizado para correr os testes possui um \textit{Solid State
 \caption{Gráficos correspondente aos valores da tabela \label{overflow}}
 \end{figure}
 
-Da análise dos resultados obtidos nas tabelas e gráficos verifica-se que se o custo dos acessos aleatórios for de \textbf{2} encontram-se melhores valores de latência média e a 99\%. Também o número de pedidos medios por tempo é superior ao definido por defeito na configuração inicial.
+Na análise dos resultados obtidos nas tabelas e gráficos anteriores verificasse que se o custo dos acessos aleatórios for de \textbf{2} encontram-se melhores valores de latência média e a 99\%. Também o número de pedidos médios por segundo é superior.
 
 De notar, que quando o custo é de \textbf{1} os valores são muito inferiores aos desejados.
 
-Conclui-se então que se diminuir o custo dos acessos aleatórios para \textbf{2} irá beneficiar a execução do \textit{benchmark}. Isto acontece porque a escolha do algoritmo vai passar a optar em algumas partes da \textit{query} por usar acessos aleatórios em vez dos preteridos acessos sequenciais.
+Conclui-se então que se diminuir o custo dos acessos aleatórios para \textbf{2} irá beneficiar a execução do \textit{benchmark}. Isto acontece porque a escolha dos algoritmos vai passar a optar em algumas partes da \textit{query} por usar acessos aleatórios em vez dos, preteridos, acessos sequenciais.
 
 \newpage
 
 \subsection{Configuração do \textit{shared\_buffers} com o \textit{effective\_cache\_size}}
 
-Escolhida a melhor configurações do \textit{shared\_buffers}, o intervalo de mémoria [1024-2048]MB. No \textit{effective\_cache\_size} decidiu-se usar o melhor resultado da configuração anterior, 1024MB, e testar, também, os valores de memória conservadora e agressiva definidos anteriormente, 4096MB e 6144MB, respectivamente.
+Escolhida a melhor configuração no \textit{shared\_buffers}, o intervalo [1024-2048]MB de memória. No \textit{effective\_cache\_size} decidiu-se usar o melhor resultado da configuração anterior, 1024MB, e testar, também, os valores de memória conservadora e agressiva definidos anteriormente, 4096MB e 6144MB, respectivamente.
 
 Os resultados obtidos para esta configuração são os seguintes:
 
@@ -270,9 +268,9 @@ Os resultados obtidos para esta configuração são os seguintes:
 \caption{Gráficos corresponde às variações do \textit{shared\_buffers} para cada \textit{effective\_cache\_size}}
 \end{figure}
 
-Desta vez, consegui-se perceber que a configuração mais agressiva do \textit{effective\_cache\_size} (\textbf{6144MB}) teve melhores resultados neste \textit{benchmark} dos que nos resultados indivuais do parâmetro.
+Desta vez, conseguiu-se perceber que a configuração mais agressiva do \textit{effective\_cache\_size} (\textbf{6144MB}) teve melhores resultados dos que nos resultados indivuais do parâmetro.
 
-Conclui-se facilmente que a melhor configuração obtida foi de \textbf{6144MB}  de \textit{shared\_buffers} e de \textbf{1024MB} de \textit{effective\_cache\_size}. Através da análise dos gráficos verifica-se que se obteve mais pedidos por segundo e o percentil das latências (média e a 99\%) são os mais baixos. Esta configuração será mantida para a próxima configuração.
+Conclui-se facilmente que a melhor configuração obtida foi de \textbf{2048MB} de \textit{shared\_buffers} e de \textbf{1024MB} de \textit{effective\_cache\_size}. Através da análise dos gráficos confirmasse que se obteve mais pedidos por segundo e o percentil das latências (média e a 99\%) são os mais baisxos. Esta configuração será mantida para a próxima configuração.
 
 Desta forma, percebe-se que ter muita quantidade de memória RAM disponível não significa que se vai obter resultados com qualidade superior, antes pelo contrário, como provado neste \textit{benchmark}.
 
@@ -289,7 +287,7 @@ Desta forma, percebe-se que ter muita quantidade de memória RAM disponível nã
 \end{tabular}
 \end{table}
 
-Assim para os melhores resultados obtidos na configuração individual do \textit{checkpoint\_segments}, 3 e 9 segmentos, vamos testar estes valores com a configuração definida na tabela anterior.
+Para os melhores resultados obtidos na configuração individual do \textit{checkpoint\_segments}, 3 e 9 segmentos, vamos testar estes valores com a configuração definida na tabela anterior.
 
 \begin{table}[!h]
 \center
@@ -314,9 +312,7 @@ Assim para os melhores resultados obtidos na configuração individual do \texti
 
 Como esperado o aumento do número de \textit{checkpoint\_segments} permitiu aumentar o número de transações medidas e diminuir as latências (média e a 99\%).
 
-Assim para a próxima configuração será usado um \textit{checkpoint\_segments} de 9 segmentos. De notar que apesar deste aumento significativo dos resultados o tempo de recuperação da Base de Dados será mais lento.
-
-De notar que ainda que o número de segmentos tenha aumentado ainda é possível notar que em determinados momentos os \textit{checkpoints} são ainda muito frequentes. Como tal, poderia-se aumentar o número de segmentos até que esta mensagem deixasse de aparecer, mas poderia causar alguns problemas de desempenho no \textit{benchmark}.
+Assim para a próxima configuração será usado um \textit{checkpoint\_segments} de 9 segmentos. De notar que apesar deste aumento significativo dos resultados o tempo de recuperação da Base de Dados será mais lento e que ainda que o número de segmentos tenha aumentado ainda é possível notar que em determinados momentos os \textit{checkpoints} são ainda muito frequentes. Como tal, poderia-se aumentar o número de segmentos, mas poderia causar alguns problemas de desempenho no \textit{benchmark}.
 
 \newpage
 
@@ -334,9 +330,9 @@ De notar que ainda que o número de segmentos tenha aumentado ainda é possível
 \end{tabular}
 \end{table}
 
-Como na configuração individual do \textit{autovacuum\_naptime} não se obteve resultados razoáveis para 2 e 3 minutos, decidiu-se para este teste efetuar novos tempos de execução do \textit{autovacuum}. Assim serão usados 30, 60 (predefinido) e 90 segundos neste \textit{benchmark}.
+Como na configuração individual do \textit{autovacuum\_naptime} não se obteve resultados razoáveis para 2 e 3 minutos, decidiu-se para este teste efetuar novos tempos de execução do \textit{autovacuum}. Assim vamos usar 30, 60 (predefinido) e 90 segundos para a configuração deste \textit{benchmark}.
 
-Com a configuração da tabela anterior mais os novos parâmetros definidos obteve-se os seguintes resultados, representados na seguinte tabela e nos próximos gráficos.
+Com os valores definidos na tabela anterior mais os novos parâmetros obteve-se os seguintes resultados, representados na seguinte tabela e nos próximos gráficos.
 
 \begin{table}[!h]
 \center
@@ -360,7 +356,7 @@ Com a configuração da tabela anterior mais os novos parâmetros definidos obte
 \caption{Corresponde às variações das configurações anteriores com \textit{autovacuum\_naptime}}
 \end{figure}
 
-A partir dos resultados acima demonstrados verifica-se que o melhor resultado aconteceu quando o tempo de \textbf{30} segundos estava definido. Como verificado, com o aumento do valor do \textit{autovacuum\_naptime} nota-se, perfeitamente, que os resultados pioraram de forma significativa.
+A partir dos resultados acima mostrados somos capazes de verificar que o melhor resultado aconteceu quando o tempo de \textbf{30} segundos estava definido. Com o aumento do valor do \textit{autovacuum\_naptime} nota-se que os resultados pioraram de forma significativa.
 
 Como tal na próxima configuração o valor do \textit{autovacuum\_naptime} será de \textbf{30} segundos.
 
@@ -381,7 +377,7 @@ Como tal na próxima configuração o valor do \textit{autovacuum\_naptime} ser�
 \end{tabular}
 \end{table}
 
-Como na configuração anterior deste parâmetro o melhor resultado foi 2, decidiu-se então para este novo \textit{benchmark} fazer usar este valor e também tornar novamente iguais os valores das leituras sequenciais aos das leituras aleatórias, de forma a perceber como iriam variar os resultados.
+Como na configuração individual deste parâmetro o melhor resultado obtido foi um custo de 2, decidiu-se para este novo \textit{benchmark} fazer usar este valor e também tornar novamente iguais os valores das acessos sequenciais e das acessos aleatórias, de forma a perceber como iriam variar os resultados.
 
 \begin{table}[!h]
 \center
@@ -405,9 +401,9 @@ Custo4 & 76469 & 382.342824656676 & 1.01569113987367 & 1.088295  \\ \hline
 \caption{Corresponde às variações das configurações anteriores com \textit{random\_page\_cost}}
 \end{figure}
 
-Através da análise dos valores resultantes da tabela e dos gráficos mostrados, verifica-se que, novamente, que o custo \textbf{2} apresenta os melhores valores, tanto aos nível dos pedidos como das latências. Já o custo \textbf{1} reproduz o pior resultado. Com este valor mostra que o \textit{PostgreSQL} altera os tipos de algoritmos escolhidos, passando de preterir alguns índices sequenciais a aleatórios fazendo atingir valores inviavéis para a configuração.
+Da análise dos valores resultantes da tabela e dos gráficos anteriores, verifica-se, novamente, que o custo \textbf{2} apresenta os melhores resultados, tanto ao nível dos pedidos como das latências. Já o custo \textbf{1} reproduz o pior resultado. Com este valor mostra que o \textit{PostgreSQL} altera os tipos de algoritmos escolhidos, passando de preterir alguns índices sequenciais a aleatórios fazendo atingir valores inviavéis para a configuração.
 
-Com o custo igual a \textbf{2} no \textit{random\_page\_cost}, significa que é uma configuração equilibrada.
+Com o custo igual a \textbf{2} no \textit{random\_page\_cost}, significa que é uma configuração equilibrada na escolha de determinados algoritmos.
 
 \newpage
 
@@ -427,7 +423,7 @@ Com o custo igual a \textbf{2} no \textit{random\_page\_cost}, significa que é 
 \end{tabular}
 \end{table}
 
-Anteriormente, o melhor resultado para este parâmetro ficava no intervalo [8-32]MB. Para este teste não seguímos diretamente esse intervalo. Foram realizados testes para 16MB, 32MB e 64MB, isto porque se percebeu que poderia atingir um resultado melhor para esta configuração.
+Anteriormente, o melhor resultado para este parâmetro situava-se no intervalo [8-32]MB. Para este teste não seguímos diretamente esse intervalo. Foram realizados testes para 16MB, 32MB e 64MB, isto aconteceu, porque se percebeu que poderíamos atingir um resultado melhor para esta configuração.
 
 Seguem-se então os resultados obtidos:
 
@@ -454,12 +450,11 @@ Seguem-se então os resultados obtidos:
 \caption{Corresponde às variações das configurações anteriores com \textit{work\_mem}}
 \end{figure}
 
-Ao analisar-mos os resultados gerados, verificámos que para \textbf{1MB} as latências têm valores inferiores às restantes no entanto o número de transações em muito inferior. Os tamanhos \textbf{16MB}, \textbf{32MB} e \textbf{64MB} apresentam um valor significativamente mais elevado, mas também conseguem processar mais transações.
+Nos resultados gerados verificámos que para \textbf{1MB} as latências têm valores inferiores às restantes no entanto o número de transações é inferior. Os tamanhos \textbf{16MB}, \textbf{32MB} e \textbf{64MB} apresentam um valor significativamente mais elevado de latência, mas conseguem processar mais transações por segundo.
 
-Escolhemos o valor de \textbf{64MB} como o melhor resultado deste \textit{benchmark} porque apesar da latência subir significativamente, o nível de pedidos por segundos é muito superior. De notar, na imagem mais abaixo, que o tempo de execução de cada query, indivualmente, diminuiu o seu tempo de execução.
+Escolhemos o valor de \textbf{64MB} como o melhor resultado deste \textit{benchmark} porque apesar da latência aumentar significativamente, o nível de pedidos por segundos é muito superior. De notar, na imagem mais abaixo, que o tempo de execução de cada \textit{query}, indivualmente, diminuiu o seu tempo de execução.
 
 \subsection{Configuração final}
-
 
 \begin{table}[!h]
 \center
@@ -488,12 +483,12 @@ Agora é possível comparar os resultados entre a configuração incialmente usa
 Default & 62118 & 310.5880666032618 & 1.0220994499090980 & 1.130365  \\ \hline
 Final & 80278 & 401.388611052913 & 1.01766492785072 & 1.090232  \\ \hline
 \end{tabular}
-\caption{Resultados obtidos para diferentes tamanhos do \textit{work\_mem}}
+\caption{Configuração inicial vs. Configuração final}
 \end{table}
 
-Conclui-se que as evoluções que tem vindo a ocorrer com a alteração de certos parâmetros tem feito evoluir positivamente o desempenho do \textit{benchmark}. Nota-se que o número de transações por segundo aumentou e que a latência entre estas transações diminuiu significativamente.
+Conclui-se que as evoluções que tem vindo a ocorrer com a alteração de certos parâmetros tem feito evoluir positivamente o desempenho do \textit{benchmark}. Notasse que o número de transações por segundo aumentou e que a latência entre estas transações diminuiu significativamente.
 
-Segue-se ainda uma gráfico que mostra o tempo que cada \textit{query} em média demorou a executar e o número de pedidos por segundo.
+Segue-se ainda um gráfico que mostra o tempo que cada \textit{query} em média demorou a executar e o número de pedidos por segundo.
 
 \begin{figure}[ht!]
 \centering
