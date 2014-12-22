@@ -314,6 +314,7 @@ Como esperado o aumento do número de \textit{checkpoint\_segments} permitiu aum
 
 Assim para a próxima configuração será usado um \textit{checkpoint\_segments} de 9 segmentos. De notar que apesar deste aumento significativo dos resultados o tempo de recuperação da Base de Dados será mais lento.
 
+De notar que ainda que o número de segmentos tenha aumentado ainda é possível notar que em determinados momentos os \textit{checkpoints} são ainda muito frequentes. Como tal, poderia-se aumentar o número de segmentos até que esta mensagem deixasse de aparecer, mas poderia causar alguns problemas de desempenho no \textit{benchmark}.
 
 \newpage
 
@@ -378,6 +379,34 @@ Como tal na próxima configuração o valor do \textit{autovacuum\_naptime} ser�
 \end{tabular}
 \end{table}
 
+Como na configuração anterior deste parâmetro o melhor resultado foi 2, decidiu-se então para este novo \textit{benchmark} fazer usar este valor e também tornar novamente iguais os valores das leituras sequenciais aos das leituras aleatórias, de forma a perceber como iriam variar os resultados.
+
+\begin{table}[!h]
+\center
+\small
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{\# custo} & \textbf{\# pedidos} & \textbf{pedidos/s} & \textbf{lat. média (s)} & \textbf{lat. perct. 99 (s)}  \\ \hline
+Custo1 & 69864 & 349.318453834434 & 1.01832794880053 & 1.091778  \\ \hline
+Custo2 & 77165 & 385.822548996668 & 1.01697276913108 & 1.085727  \\ \hline
+Custo4 & 76469 & 382.342824656676 & 1.01569113987367 & 1.088295  \\ \hline
+\end{tabular}
+\caption{Resultados obtidos para diferentes custos do \textit{random\_page\_cost}}
+\end{table}
+
+\begin{figure}[ht!]
+\centering
+\includegraphics[width=70mm]{img/questao_3/sb_ecs_cs_vacuum_rpc_a.png}
+\includegraphics[width=70mm]{img/questao_3/sb_ecs_cs_vacuum_rpc_b.png}
+\includegraphics[width=70mm]{img/questao_3/sb_ecs_cs_vacuum_rpc_c.png}
+\includegraphics[width=70mm]{img/questao_3/sb_ecs_cs_vacuum_rpc_d.png}
+\caption{Corresponde às variações das configurações anteriores com \textit{random\_page\_cost}}
+\end{figure}
+
+Através da análise dos valores resultantes da tabela e dos gráficos mostrados, verifica-se que, novamente, que o custo \textbf{2} apresenta os melhores valores, tanto aos nível dos pedidos como das latências. Já o custo \textbf{1} reproduz o pior resultado. Com este valor mostra que o \textit{PostgreSQL} altera os tipos de algoritmos escolhidos, passando de preterir alguns índices sequenciais a aleatórios fazendo atingir valores inviavéis para a configuração.
+
+Com o custo igual a \textbf{2} no \textit{random\_page\_cost}, significa que é uma configuração equilibrada.
+
 \newpage
 
 \subsection{Configuração anterior com o \textit{work\_mem}}
@@ -392,7 +421,81 @@ Como tal na próxima configuração o valor do \textit{autovacuum\_naptime} ser�
 \textbf{effective\_cache\_size} & 1024MB  \\ \hline
 \textbf{checkpoint\_segments} & 9 Segmentos \\ \hline
 \textbf{autovacuum\_naptime} & 30 Segundos \\ \hline
-\textbf{work\_mem} & xxMB \\ \hline
+\textbf{random\_page\_cost} & 2 \\ \hline
 \end{tabular}
 \end{table}
 
+Anteriormente, o melhor resultado para este parâmetro ficava no intervalo [8-32]MB. Para este teste não seguímos diretamente esse intervalo. Foram realizados testes para 16MB, 32MB e 64MB, isto porque se percebeu que poderia atingir um resultado melhor para esta configuração.
+
+Seguem-se então os resultados obtidos:
+
+\begin{table}[!h]
+\center
+\small
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{\# tamanho} & \textbf{\# pedidos} & \textbf{pedidos/s} & \textbf{lat. média (s)} & \textbf{lat. perct. 99 (s)}  \\ \hline
+1MB & 77165 & 385.822548996668 & 1.01697276913108 & 1.085727  \\ \hline
+16MB & 78158 & 390.788969075252 & 1.0171380589447 & 1.085266  \\ \hline
+32MB & 79480 & 397.398960072492 & 1.01716957381731 & 1.087713  \\ \hline
+64MB & 80278 & 401.388611052913 & 1.01766492785072 & 1.090232  \\ \hline
+\end{tabular}
+\caption{Resultados obtidos para diferentes tamanhos do \textit{work\_mem}}
+\end{table}
+
+\begin{figure}[ht!]
+\centering
+\includegraphics[width=70mm]{img/questao_3/sb_ecs_cs_vacuum_rpc_wm_a.png}
+\includegraphics[width=70mm]{img/questao_3/sb_ecs_cs_vacuum_rpc_wm_b.png}
+\includegraphics[width=70mm]{img/questao_3/sb_ecs_cs_vacuum_rpc_wm_c.png}
+\includegraphics[width=70mm]{img/questao_3/sb_ecs_cs_vacuum_rpc_wm_d.png}
+\caption{Corresponde às variações das configurações anteriores com \textit{work\_mem}}
+\end{figure}
+
+Ao analisar-mos os resultados gerados, verificámos que para \textbf{1MB} as latências têm valores inferiores às restantes no entanto o número de transações em muito inferior. Os tamanhos \textbf{16MB}, \textbf{32MB} e \textbf{64MB} apresentam um valor significativamente mais elevado, mas também conseguem processar mais transações.
+
+Escolhemos o valor de \textbf{64MB} como o melhor resultado deste \textit{benchmark} porque apesar da latência subir significativamente, o nível de pedidos por segundos é muito superior. De notar, na imagem mais abaixo, que o tempo de execução de cada query, indivualmente, diminuiu o seu tempo de execução.
+
+\subsection{Configuração final}
+
+
+\begin{table}[!h]
+\center
+\small
+\begin{tabular}{|l|c|}
+\hline
+\textbf{Parâmetro} & \textbf{Valor} \\ \hline
+\textbf{shared\_buffers} & 2048MB  \\ \hline
+\textbf{effective\_cache\_size} & 1024MB  \\ \hline
+\textbf{checkpoint\_segments} & 9 Segmentos \\ \hline
+\textbf{autovacuum\_naptime} & 30 Segundos \\ \hline
+\textbf{random\_page\_cost} & 2 \\ \hline
+\textbf{work\_mem} & 64MB \\ \hline
+\end{tabular}
+\caption{Valores recomendados para a configuração do \textit{PostgreSQL}}
+\end{table}
+
+Agora é possível comparar os resultados entre a configuração incialmente usada, a predefinida no \textit{PostgrSQL}, e a que conseguímos obter por alteração de alguns critérios. Assim na próxima tabela vai ser possível verificar estes resultados.
+
+\begin{table}[!h]
+\center
+\small
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{\# configuração} & \textbf{\# pedidos} & \textbf{pedidos/s} & \textbf{lat. média (s)} & \textbf{lat. perct. 99 (s)}  \\ \hline
+Default & 62118 & 310.5880666032618 & 1.0220994499090980 & 1.130365  \\ \hline
+Final & 80278 & 401.388611052913 & 1.01766492785072 & 1.090232  \\ \hline
+\end{tabular}
+\caption{Resultados obtidos para diferentes tamanhos do \textit{work\_mem}}
+\end{table}
+
+Conclui-se que as evoluções que tem vindo a ocorrer com a alteração de certos parâmetros tem feito evoluir positivamente o desempenho do \textit{benchmark}. Nota-se que o número de transações por segundo aumentou e que a latência entre estas transações diminuiu significativamente.
+
+Segue-se ainda uma gráfico que mostra o tempo que cada \textit{query} em média demorou a executar e o número de pedidos por segundo.
+
+\begin{figure}[ht!]
+\centering
+\includegraphics[width=70mm]{img/questao_3/figure_1.png}
+\includegraphics[width=70mm]{img/questao_3/figure_2.png}
+\caption{Tempo de execução de cada \textit{query} e o número de pedidos/s}
+\end{figure}
